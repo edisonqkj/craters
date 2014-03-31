@@ -113,7 +113,7 @@ else
     
     % clear table
     cur_data = get(handles.table_statistics,'data');
-    [data_row,data_col] = size(cur_data)
+    [data_row,data_col] = size(cur_data);
     if data_row>0
         cur_data(1,:)=[];
         set(handles.table_statistics, 'data', cur_data);
@@ -130,6 +130,7 @@ function figure1_WindowButtonDownFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global dem_head
+global dem
 global isClicked
 if numel(dem_head)>0
     % global firstpt
@@ -166,6 +167,25 @@ if numel(dem_head)>0
     % mark rectangle id
     text(select_xy(1,1)+10,select_xy(1,2)+10,['ID = ' num2str(rec_id)]);
     
+    % aspect analysis
+    start_x=select_xy(1,1);
+    start_y=select_xy(1,2);
+    end_x=select_xy(2,1);
+    end_y=select_xy(2,2);
+    if start_x==0
+        start_x=1;
+    end
+    if start_y==0
+        start_y=1;
+    end
+    if end_x>dem_head(1)
+        end_x=dem_head(1);
+    end
+    if end_y>dem_head(2)
+        end_y=dem_head(2);
+    end
+    aspect=dem(start_y:end_y,start_x:end_x);
+    AspectAnalysis(aspect);
 end
 
 % --- Executes on button press in btn_exit.
