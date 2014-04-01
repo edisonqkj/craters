@@ -165,7 +165,7 @@ if numel(dem_head)>0
         'EdgeColor','r','LineWidth',2);
     line(click_x,click_y);
     % mark rectangle id
-    text(select_xy(1,1)+10,select_xy(1,2)+10,['ID = ' num2str(rec_id)]);
+    text(select_xy(1,1)+10,select_xy(1,2)+10,['ID = ' num2str(rec_id)],'EdgeColor','white');
     
     % aspect analysis
     start_x=select_xy(1,1);
@@ -185,7 +185,7 @@ if numel(dem_head)>0
         end_y=dem_head(2);
     end
     aspect=dem(start_y:end_y,start_x:end_x);
-    AspectAnalysis(aspect);
+    AspectAnalysis(aspect,rec_id);
 end
 
 % --- Executes on button press in btn_exit.
