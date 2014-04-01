@@ -185,7 +185,8 @@ if numel(dem_head)>0
         end_y=dem_head(2);
     end
     aspect=dem(start_y:end_y,start_x:end_x);
-    AspectAnalysis(aspect,rec_id);
+%     AspectAnalysis(aspect,rec_id);
+    scalewin(aspect);
 end
 
 % --- Executes on button press in btn_exit.
