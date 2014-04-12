@@ -89,16 +89,18 @@ def start(paras_father):
     paras_son=map(lambda x:[in_dem,in_envelope,filedir+"/"+str(int(x))+"/"],f.readlines()[0][1:-1].split(','))
     f.close()
     print("Area Numbers: "+str(len(paras_son)))
-    #print(paras_son[0])
-    #print(len(paras_son))
-    #paras_son=paras_son[0:5]
-    process_num=4
-    print("Process Numbers: "+str(process_num))
+
+    #process_num=16
+    #print("Process Numbers: "+str(process_num))
     #print("slice_paras:")
-    slice_paras=map(lambda x:paras_son[x:x+process_num],\
-                    range(0,len(paras_son),process_num))
+    #slice_paras=map(lambda x:paras_son[x:x+process_num],\
+    #               range(0,len(paras_son),process_num))
     #print(slice_paras)
-    map(parallel,slice_paras)
+    # parallel
+    # parallel execution is failed by unstable processes
+    #map(parallel,slice_paras)
+    # serial
+    map(split,paras_son)
     print(ids_txt+" is finished......")
 
 def parallel(paras):
@@ -127,24 +129,26 @@ def split(paras):
     2. extract DEM in the envelope
     '''
     out_dem=target_dir+"dem"+ORIG_FID
+    try:
+        arcpy.env.extent=outshp
+        arcpy.env.snapRaster=in_dem
+        # Check out the ArcGIS Spatial Analyst extension license
+        arcpy.CheckOutExtension("Spatial")
 
-    arcpy.env.extent=outshp
-    arcpy.env.snapRaster=in_dem
-    # Check out the ArcGIS Spatial Analyst extension license
-    arcpy.CheckOutExtension("Spatial")
+        # Execute ExtractByMask
+        outExtractByMask = ExtractByMask(in_dem, outshp)
+        # Save the output 
+        outExtractByMask.save(out_dem)
 
-    # Execute ExtractByMask
-    outExtractByMask = ExtractByMask(in_dem, outshp)
-    # Save the output 
-    outExtractByMask.save(out_dem)
+        '''
+        3. convert DEM to Ascii
+        '''
+        out_asc=target_dir+"asc"+ORIG_FID+".txt"
+        Raster2Ascii(out_dem,out_asc,False)
 
-    '''
-    3. convert DEM to Ascii
-    '''
-    out_asc=target_dir+"asc"+ORIG_FID+".txt"
-    Raster2Ascii(out_dem,out_asc,False)
-
-    print("Finished Area: "+ORIG_FID+"......")
+        print("Finished Area: "+ORIG_FID+"......")
+    except:
+        print(arcpy.GetMessages())
 
 def writeids(path,data):
     if len(data)>0:
@@ -162,11 +166,11 @@ if __name__=='__main__':
     starttime_all = datetime.datetime.now()
     ############################### body ##################################
     ## 1. index envelops into four regions
-    save_dir="E:/"
-    envelope='E:/tmp/env1.shp'
+    save_dir="D:/qkj/"
+    envelope='E:/qkj/env_p30.shp'
     ids_path=region(save_dir,envelope)
 
-    dem="E:/R/Moon/LOLA/Moon_LRO_LOLA_global_LDEM_118m_Feb2013.cub"
+    dem="E:/qkj/Moon_LRO_LOLA_global_LDEM_118m_Feb2013.cub"
     paras=map(lambda x:[dem,envelope,x],ids_path)
     #print(paras)
     map(start,paras)
