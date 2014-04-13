@@ -10,15 +10,18 @@ from OutletAnalysis import *
 ## Author: Edison Qian
 
 def ExtractRidge(ascii_path):
-    print(ascii_path)
-    isprint=True
+    #"F:/north-east/0/asc0.txt"
+    print(ascii_path+" is executed......")
+    isprint=False
     # full path of file
     if isprint:
         print("Dealing with %s" %ascii_path)
     base,filename=os.path.split(ascii_path)
+    FID=base.split('/')[-1]
+    #base+="/"
     name=filename.split('.')[0]
     fileformat=filename.split('.')[1]
-
+###########################################################
     # 0. Prepare Temporal & Crater Directory
     if isprint:
         print ('###################################')
@@ -44,14 +47,18 @@ def ExtractRidge(ascii_path):
     os.mkdir(crater_dir)
     if isprint:
         print ('Create '+crater_dir)
-
-    arcpy.env.workspace = base
-    # 1. Create DEM Raster
-    dem=tmp_dir+'dem'
-    rasterType = "INTEGER"
-    Ascii2Raster(ascii_path,rasterType,dem,isprint)
     if isprint:
-        print ('1 is finished......')
+        print("Directories are ready......")
+
+###########################################################
+
+    arcpy.env.workspace = base #F:/north-east/0/
+    # 1. Create DEM Raster
+    dem=base+"/dem"+FID #tmp_dir+'dem'
+    #rasterType = "INTEGER"
+    #Ascii2Raster(ascii_path,rasterType,dem,isprint)
+    #if isprint:
+    #    print ('1 is finished......')
 
     # 2. Fill DEM
     fill=tmp_dir+'fill'
@@ -72,7 +79,9 @@ def ExtractRidge(ascii_path):
     plg_area=tmp_dir+'plg_area.shp'
     plg_area_mshp=tmp_dir+'plg_area_max.shp'
     plg_area_mrst=tmp_dir+'plg_area_max'
-    cellsize=118.4505876#499.542418
+
+    head_asc,asc=ReadAscii(ascii_path)
+    cellsize=head_asc[4] #118.4505876499.542418
     
     GetFilledArea(dem,fill,filledarea,isprint)
     Raster2Polygon(filledarea,plg,isprint)
@@ -120,7 +129,10 @@ def ExtractRidge(ascii_path):
 
     #print (name+'\tExtractRidge is finished......')
     #return 'r '+crater,'r '+crater_plg
-    
+    print(ascii_path+" is finished......")
+
+###########################################################
+
 def Ascii2Raster(ascii,rasterType,raster,isprint):
     try:
         arcpy.ASCIIToRaster_conversion(ascii, raster, rasterType)
@@ -188,7 +200,7 @@ def GetFilledArea(dem,fill,filledarea,isprint):
     #GetFilledArea('E:/select/tr0_101x109/raster','E:/select/tr0_101x109/fill','E:/select/tr0_101x109/a1')
     try:
         arcpy.CheckOutExtension("spatial")
-        base,filename=os.path.split(dem)
+        base,filename=os.path.split(fill)
         minus=base+'/minus'
         arcpy.gp.Minus_sa(dem, fill,minus)
         arcpy.gp.LessThan_sa(minus, 0,filledarea)

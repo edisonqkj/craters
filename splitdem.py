@@ -35,7 +35,7 @@ def region(workspace,in_envelope):
     if os.path.exists(folder_sw):
         CleanDir(folder_sw,False)
     os.mkdir(folder_sw)
-    print("Directories is ready......")
+    print("Directories are ready......")
 
     env.workspace = workspace
     records=arcpy.SearchCursor(in_envelope,"","","","")
@@ -166,11 +166,11 @@ if __name__=='__main__':
     starttime_all = datetime.datetime.now()
     ############################### body ##################################
     ## 1. index envelops into four regions
-    save_dir="D:/qkj/"
-    envelope='E:/qkj/env_p30.shp'
+    save_dir="F:/"
+    envelope='E:/tmp/env1.shp'
     ids_path=region(save_dir,envelope)
 
-    dem="E:/qkj/Moon_LRO_LOLA_global_LDEM_118m_Feb2013.cub"
+    dem="E:/R/Moon/LOLA/Moon_LRO_LOLA_global_LDEM_118m_Feb2013.cub"
     paras=map(lambda x:[dem,envelope,x],ids_path)
     #print(paras)
     map(start,paras)
@@ -180,7 +180,7 @@ if __name__=='__main__':
     print 'All processes are finished......'
     print 'Cost time: '+str((endtime_all - starttime_all).seconds)+' seconds'
     
-    f=open(save_dir+"costtime.txt",'a')
+    f=open(save_dir+"split_time.txt",'a')
     f.writelines('Split Cost time: '+str((endtime_all - starttime_all).seconds)+' seconds')
     f.close()
 

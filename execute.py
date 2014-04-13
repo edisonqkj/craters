@@ -15,50 +15,73 @@ from splitdem import *
 ## north-east,north west,
 ## south east,south west
 
-def Execute(files):
-	'''
-	workpath=os.path.abspath('.')
-	dirs='/'.join(workpath.split('\\'))
-	files=map(lambda x:dirs+'/'+x,files)
-	'''
+def parallel(paras):
+	pool = Pool(len(paras))
+	pool.map(ExtractRidge,paras)
+	pool.close()
+	pool.join()
+
+def Execute(files,process_num):
+	#process_num=4
+	#print("slice_paras:")
+	slice_paras=map(lambda x:files[x:x+process_num],\
+		range(0,len(files),process_num))
+	#print(slice_paras[:3])
+##############################################################
 	pool_costtime_start=datetime.datetime.now()
 
-	#pool = Pool(len(files))
-	map(ExtractRidge, files)
-	#pool.close()
-	#pool.join()
+	map(parallel,slice_paras)
 
 	pool_costtime_end=datetime.datetime.now()
+##############################################################
+	#"F:/north-east/0/asc0.txt"
+	base,filename=os.path.split(files[0])
+	rec_time=base.split('/')[-3]+"/extract_time.txt"
 	print ('[Pool Cost time: '+\
 		str((pool_costtime_end - pool_costtime_start).seconds)+\
 		' seconds]')
-	f=open("costtime.txt",'a')
+	f=open(rec_time,'a')
 	f.writelines('Extract Cost time: '+\
 		str((pool_costtime_end - pool_costtime_start).seconds)+' seconds')
 	f.close()
 
 if __name__ == '__main__':
 	'''
+	# split dem
 	Process("","")
-'''
+	'''
+	ids_ne=[]
+	ids_se=[]
+	ids_nw=[]
+	ids_sw=[]
 	data_dir="F:/"
-	f=open(data_dir+"north-east/ids.txt")
-	ids_ne=map(lambda x:int(x),f.readlines()[0][1:-1].split(','))
-	f.close()
-	f=open(data_dir+"south-east/ids.txt")
-	ids_se=map(lambda x:int(x),f.readlines()[0][1:-1].split(','))
-	f.close()
-	f=open(data_dir+"north-west/ids.txt")
-	ids_nw=map(lambda x:int(x),f.readlines()[0][1:-1].split(','))
-	f.close()
-	f=open(data_dir+"south-west/ids.txt")
-	ids_sw=map(lambda x:int(x),f.readlines()[0][1:-1].split(','))
-	f.close()
+	if os.path.exists(data_dir+"north-east/ids.txt"):
+		f=open(data_dir+"north-east/ids.txt")
+		ids_ne=map(lambda x:int(x),f.readlines()[0][1:-1].split(','))
+		f.close()
+	else:
+		print(data_dir+"north-east/ids.txt is not found......")
 
-	print(ids_ne)
-	print(ids_se)
-	print(ids_nw)
-	print(ids_sw)
+	if os.path.exists(data_dir+"south-east/ids.txt"):
+		f=open(data_dir+"south-east/ids.txt")
+		ids_se=map(lambda x:int(x),f.readlines()[0][1:-1].split(','))
+		f.close()
+	else:
+		print(data_dir+"south-east/ids.txt is not found......")
+
+	if os.path.exists(data_dir+"north-west/ids.txt"):
+		f=open(data_dir+"north-west/ids.txt")
+		ids_nw=map(lambda x:int(x),f.readlines()[0][1:-1].split(','))
+		f.close()
+	else:
+		print(data_dir+"north-west/ids.txt is not found......")
+
+	if os.path.exists(data_dir+"south-west/ids.txt"):
+		f=open(data_dir+"south-west/ids.txt")
+		ids_sw=map(lambda x:int(x),f.readlines()[0][1:-1].split(','))
+		f.close()
+	else:
+		print(data_dir+"south-west/ids.txt is not found......")
 
 	files=[]
 	for i in range(len(ids_ne)):
@@ -69,6 +92,7 @@ if __name__ == '__main__':
 		files.append(data_dir+"north-west/"+str(ids_nw[i])+"/asc"+str(ids_nw[i])+".txt")
 	for i in range(len(ids_sw)):
 		files.append(data_dir+"south-west/"+str(ids_sw[i])+"/asc"+str(ids_sw[i])+".txt")
-		
+
 	#files=["f:/north-east/0/asc0.txt"]
-	Execute(files)
+	Execute(files,4)
+	#os.system('shutdown -s -f -t 10')
