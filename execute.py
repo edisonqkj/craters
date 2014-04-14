@@ -46,10 +46,12 @@ def Execute(files,process_num):
 	print ('[Pool Cost time: '+\
 		str((pool_costtime_end - pool_costtime_start).seconds)+\
 		' seconds]')
+	'''
 	f=open(rec_time,'a')
-	f.writelines('Extract Cost time: '+\
-		str((pool_costtime_end - pool_costtime_start).seconds)+' seconds\n')
+	f.writelines(unicode('Extract Cost time: '+\
+		str((pool_costtime_end - pool_costtime_start).seconds)+' seconds\n'))
 	f.close()
+	'''
 
 if __name__ == '__main__':
 	'''
@@ -100,5 +102,5 @@ if __name__ == '__main__':
 		files.append(data_dir+"south-west/"+str(ids_sw[i])+"/asc"+str(ids_sw[i])+".txt")
 
 	#files=["f:/north-east/0/asc0.txt"]
-	Execute(files,4)
+	Execute(files,2)
 	#os.system('shutdown -s -f -t 10')

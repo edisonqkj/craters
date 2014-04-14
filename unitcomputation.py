@@ -1,10 +1,13 @@
 # -*- coding: cp936 -*-
+from __future__ import print_function
 import os
 import sys
 import arcpy
 import datetime
+import time
 from test_clearfile import *
 from OutletAnalysis import *
+from funcs import *
 
 ## Unit Computation for each input data file
 ## Time: 3/3/14
@@ -16,7 +19,7 @@ def ExtractRidge(ascii_path):
         print(ascii_path+" is not found......")
         return
     print(ascii_path+" is executed......")
-    isprint=True#False
+    isprint=False
     # full path of file
     if isprint:
         print("Dealing with %s" %ascii_path)
@@ -76,9 +79,8 @@ def ExtractRidge(ascii_path):
     # 3. Flow Direction
     fdir=tmp_dir+'fdir'
     ffdir=tmp_dir+'ffdir'
-    #map(lambda x:IsFailed(x,err_txt) and print("Error: check out in "+err_txt),\
-    map(FlowDirection,[dem,fill],[fdir,ffdir],[isprint,isprint])
-        #)
+    map(lambda x:IsFailed(x,err_txt) and print("Error: check out in "+err_txt),\
+        map(FlowDirection,[dem,fill],[fdir,ffdir],[isprint,isprint]))
     if isprint:
         print ('3 is finished......')
 
@@ -169,136 +171,3 @@ def ExtractRidge(ascii_path):
     print(ascii_path+" is finished......")
 
 ###########################################################
-def IsFailed(info,err_txt):
-    if not info==None:
-        f=open(err_txt,'a')
-        f.writelines(str(datetime.datetime.now()))
-        #print(info)
-        f.writelines(info+"\n\n")
-        f.close()
-        return True
-    return False
-
-def Ascii2Raster(ascii,rasterType,raster,isprint):
-    try:
-        arcpy.ASCIIToRaster_conversion(ascii, raster, rasterType)
-        if isprint:
-            print ('Ascii2Raster is finished....')
-    except:
-        #print(arcpy.GetMessages())
-        return "Ascii2Raster:\n"+arcpy.GetMessages()
-
-def Raster2Ascii(raster,ascii,isprint):
-    try:
-        arcpy.RasterToASCII_conversion(raster, ascii)
-        if isprint:
-            print ('Raster2Ascii is finished....')
-    except:
-        #print(arcpy.GetMessages())
-        return "Raster2Ascii:\n"+arcpy.GetMessages()
-    
-def CalShpArea(inshp,outshp,isprint):
-    #CalShpArea("E:/select/tr0_101x109/p1.shp","E:/select/tr0_101x109/p1a3.shp")
-    try:
-        arcpy.CalculateAreas_stats(inshp, outshp)
-        if isprint:
-            print ('CalShpArea is finished....')
-    except:
-        #print(arcpy.GetMessages())
-        return "CalShpArea:\n"+arcpy.GetMessages()
-
-def GetMaxAreaFeature(inshp,outshp,isprint):
-    #GetMaxAreaFeature('E:/select/tr0_101x109/p1a.shp','E:/select/tr0_101x109/ps.shp')
-    try:
-        records=arcpy.SearchCursor(inshp,"","","","")
-        feature_area=[]
-        ID=[]
-        for record in records:
-            if int(record.GRIDCODE)==1:
-                feature_area.append(float(record.F_AREA))
-                ID.append(int(record.ID))
-        if len(feature_area)>0:
-            index=feature_area.index(max(feature_area))
-            where_clause = '"ID" = '+str(ID[index])
-            arcpy.Select_analysis(inshp, outshp, where_clause)
-            if isprint:
-                print ('GetMaxAreaFeature is finished....')
-        else:
-            if isprint:
-                print("No Filled Area is found......")
-            return "GetMaxAreaFeature:\n"+"No Filled Area is found......"
-    except:
-        #print(arcpy.GetMessages())
-        return arcpy.GetMessages()
-
-def Fill(dem,fill,isprint):
-    #Fill('E:/select/tr0_101x109/raster','E:/select/tr0_101x109/fill1')
-    try:
-        arcpy.CheckOutExtension("spatial")
-        arcpy.gp.Fill_sa(dem, fill, "")
-        if isprint:
-            print ('Fill is finished....')
-    except:
-        #print(arcpy.GetMessages())
-        return "Fill:\n"+arcpy.GetMessages()
-
-def FlowDirection(dem,flowdir,isprint):
-    #FlowDirection('E:/select/tr0_101x109/raster','E:/select/tr0_101x109/d1')
-    try:
-        arcpy.CheckOutExtension("spatial")
-        arcpy.gp.FlowDirection_sa(dem, flowdir, "NORMAL", '')
-        if isprint:
-            print ('FlowDirection is finished....')
-    except:
-        #print(arcpy.GetMessages())
-        return "FlowDirection:\n"+arcpy.GetMessages()
-
-def GetFilledArea(dem,fill,filledarea,isprint):
-    #GetFilledArea('E:/select/tr0_101x109/raster','E:/select/tr0_101x109/fill','E:/select/tr0_101x109/a1')
-    try:
-        arcpy.CheckOutExtension("spatial")
-        base,filename=os.path.split(fill)
-        minus=base+'/minus'
-        arcpy.gp.Minus_sa(dem, fill,minus)
-        arcpy.gp.LessThan_sa(minus, 0,filledarea)
-        if isprint:
-            print ('GetFilledArea is finished....')
-    except:
-        #print(arcpy.GetMessages())
-        return "GetFilledArea:\n"+arcpy.GetMessages()
-
-def Raster2Polygon(raster,plg,isprint):
-    #Raster2Polygon('E:/select/tr0_101x109/area','E:/select/tr0_101x109/plg.shp')
-    try:
-        arcpy.RasterToPolygon_conversion(raster, plg, "NO_SIMPLIFY", "VALUE")
-        if isprint:
-            print ('Raster2Polygon is finished....')
-    except:
-        #print(arcpy.GetMessages())
-        return "Raster2Polygon:\n"+arcpy.GetMessages()
-
-def Polygon2Raster(plg,cellsize,extent,raster,isprint):
-    #Polygon2Raster('E:/select/tr0_101x109/ps.shp',499.542418,'E:/select/tr0_101x109/raster','E:/select/tr0_101x109/ps')
-    #GRIDCODE=1
-    try:
-        arcpy.env.extent=extent
-        arcpy.env.snapRaster=extent
-        arcpy.PolygonToRaster_conversion(plg, "GRIDCODE", raster, "CELL_CENTER", "NONE", cellsize)
-        if isprint:
-            print ('Polygon2Raster is finished....')
-    except:
-        #print(arcpy.GetMessages())
-        return "Polygon2Raster:\n"+arcpy.GetMessages()
-
-def Watershed(flowdir,outlet,extent,watershed,isprint):
-    #Watershed('E:/select/tr0_101x109/dir','E:/select/tr0_101x109/ps','E:/select/tr0_101x109/raster','E:/select/tr0_101x109/w')
-    #outlet: raster or point shp
-    try:
-        arcpy.CheckOutExtension("Spatial")
-        field="VALUE"
-        arcpy.gp.Watershed_sa(flowdir,outlet,watershed,field)
-        if isprint:
-            print ('Watershed is finished....')
-    except:
-        #print(arcpy.GetMessages())
-        return "Watershed:\n"+arcpy.GetMessages()
