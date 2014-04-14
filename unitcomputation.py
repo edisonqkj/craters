@@ -2,6 +2,7 @@
 import os
 import sys
 import arcpy
+import datetime
 from test_clearfile import *
 from OutletAnalysis import *
 
@@ -11,8 +12,11 @@ from OutletAnalysis import *
 
 def ExtractRidge(ascii_path):
     #"F:/north-east/0/asc0.txt"
+    if not os.path.exists(ascii_path):
+        print(ascii_path+" is not found......")
+        return
     print(ascii_path+" is executed......")
-    isprint=False
+    isprint=True
     # full path of file
     if isprint:
         print("Dealing with %s" %ascii_path)
@@ -21,6 +25,7 @@ def ExtractRidge(ascii_path):
     #base+="/"
     name=filename.split('.')[0]
     fileformat=filename.split('.')[1]
+    err_txt='/'.join(base.split('/')[:-1])+"/error"+FID+".txt"
 ###########################################################
     # 0. Prepare Temporal & Crater Directory
     if isprint:
@@ -62,14 +67,18 @@ def ExtractRidge(ascii_path):
 
     # 2. Fill DEM
     fill=tmp_dir+'fill'
-    Fill(dem,fill,isprint)
+    if IsFailed(Fill(dem,fill,isprint),err_txt):
+        print("Error: check out in "+err_txt)
+        return
     if isprint:
         print ('2 is finished......')
 
     # 3. Flow Direction
     fdir=tmp_dir+'fdir'
     ffdir=tmp_dir+'ffdir'
+    #map(lambda x:IsFailed(x,err_txt) and print("Error: check out in "+err_txt),\
     map(FlowDirection,[dem,fill],[fdir,ffdir],[isprint,isprint])
+        #)
     if isprint:
         print ('3 is finished......')
 
@@ -83,46 +92,74 @@ def ExtractRidge(ascii_path):
     head_asc,asc=ReadAscii(ascii_path)
     cellsize=head_asc[4] #118.4505876499.542418
     
-    GetFilledArea(dem,fill,filledarea,isprint)
-    Raster2Polygon(filledarea,plg,isprint)
-    CalShpArea(plg,plg_area,isprint)
-    GetMaxAreaFeature(plg_area,plg_area_mshp,isprint)
-    Polygon2Raster(plg_area_mshp,cellsize,dem,plg_area_mrst,isprint)
+    if IsFailed(GetFilledArea(dem,fill,filledarea,isprint),err_txt):
+        print("Error: check out in "+err_txt)
+        return
+    if IsFailed(Raster2Polygon(filledarea,plg,isprint),err_txt):
+        print("Error: check out in "+err_txt)
+        return
+    if IsFailed(CalShpArea(plg,plg_area,isprint),err_txt):
+        print("Error: check out in "+err_txt)
+        return
+    if IsFailed(GetMaxAreaFeature(plg_area,plg_area_mshp,isprint),err_txt):
+        print("Error: check out in "+err_txt)
+        return
+    if IsFailed(Polygon2Raster(plg_area_mshp,cellsize,dem,plg_area_mrst,isprint),err_txt):
+        print("Error: check out in "+err_txt)
+        return
     if isprint:
         print ('4 is finished......')
     
     # 5. Initial Watershed
     iwatershed=tmp_dir+'iwatershed'
-    Watershed(fdir,plg_area_mrst,dem,iwatershed,isprint)
+    if IsFailed(Watershed(fdir,plg_area_mrst,dem,iwatershed,isprint),err_txt):
+        print("Error: check out in "+err_txt)
+        return
     if isprint:
         print ('5 is finished......')
 
     # 6. Convert Filled Direction & Initial Watershed to Ascii
     ffdir_asc=tmp_dir+'ffdir.txt'
     iw_asc=tmp_dir+'iw.txt'
-    Raster2Ascii(ffdir,ffdir_asc,isprint)
-    Raster2Ascii(iwatershed,iw_asc,isprint)
+    if IsFailed(Raster2Ascii(ffdir,ffdir_asc,isprint),err_txt):
+        print("Error: check out in "+err_txt)
+        return
+    if IsFailed(Raster2Ascii(iwatershed,iw_asc,isprint),err_txt):
+        print("Error: check out in "+err_txt)
+        return
     if isprint:
         print ('6 is finished......')
 
     # 7. Extract Outlets from Ascii
     outlet_asc=tmp_dir+'outlet.txt'
-    OutletAnalysis(iw_asc,ffdir_asc,outlet_asc,isprint)
+    if IsFailed(OutletAnalysis(iw_asc,ffdir_asc,outlet_asc,isprint),err_txt):
+        print("Error: check out in "+err_txt)
+        return
     if isprint:
         print ('7 is finished......')
 
     # 8. Create Outlet Raster
     outlet=tmp_dir+'outlet'
     rasterType = "INTEGER"
-    Ascii2Raster(outlet_asc,rasterType,outlet,isprint)
+    if IsFailed(Ascii2Raster(outlet_asc,rasterType,outlet,isprint),err_txt):
+        print("Error: check out in "+err_txt)
+        return
     if isprint:
         print ('8 is finished......')
 
     # 9. Extract Crater Raster & Polygon
     crater=crater_dir+'c'+name
     crater_plg=crater_dir+'p'+name+'.shp'
-    Watershed(ffdir,outlet,dem,crater,isprint)
-    Raster2Polygon(crater,crater_plg,isprint)
+    crater_txt=crater_dir+'p'+name+'.txt'
+    if IsFailed(Watershed(ffdir,outlet,dem,crater,isprint),err_txt):
+        print("Error: check out in "+err_txt)
+        return
+    if IsFailed(Raster2Polygon(crater,crater_plg,isprint),err_txt):
+        print("Error: check out in "+err_txt)
+        return
+    if IsFailed(Raster2Ascii(crater,crater_txt,isprint),err_txt):
+        print("Error: check out in "+err_txt)
+        return
 
     if isprint:
         print ('9 is finished......')
@@ -132,6 +169,14 @@ def ExtractRidge(ascii_path):
     print(ascii_path+" is finished......")
 
 ###########################################################
+def IsFailed(info,err_txt):
+    if not info==None:
+        f=open(err_txt,'a')
+        f.writelines(datetime.datetime.now())
+        f.writelines(info+"\n\n")
+        f.close()
+        return True
+    return False
 
 def Ascii2Raster(ascii,rasterType,raster,isprint):
     try:
@@ -139,7 +184,8 @@ def Ascii2Raster(ascii,rasterType,raster,isprint):
         if isprint:
             print ('Ascii2Raster is finished....')
     except:
-        print(arcpy.GetMessages())
+        #print(arcpy.GetMessages())
+        return "Ascii2Raster:\n"+arcpy.GetMessages()
 
 def Raster2Ascii(raster,ascii,isprint):
     try:
@@ -147,7 +193,8 @@ def Raster2Ascii(raster,ascii,isprint):
         if isprint:
             print ('Raster2Ascii is finished....')
     except:
-        print(arcpy.GetMessages())
+        #print(arcpy.GetMessages())
+        return "Raster2Ascii:\n"+arcpy.GetMessages()
     
 def CalShpArea(inshp,outshp,isprint):
     #CalShpArea("E:/select/tr0_101x109/p1.shp","E:/select/tr0_101x109/p1a3.shp")
@@ -156,7 +203,8 @@ def CalShpArea(inshp,outshp,isprint):
         if isprint:
             print ('CalShpArea is finished....')
     except:
-        print(arcpy.GetMessages())
+        #print(arcpy.GetMessages())
+        return "CalShpArea:\n"+arcpy.GetMessages()
 
 def GetMaxAreaFeature(inshp,outshp,isprint):
     #GetMaxAreaFeature('E:/select/tr0_101x109/p1a.shp','E:/select/tr0_101x109/ps.shp')
@@ -168,13 +216,19 @@ def GetMaxAreaFeature(inshp,outshp,isprint):
             if int(record.GRIDCODE)==1:
                 feature_area.append(float(record.F_AREA))
                 ID.append(int(record.ID))
-        index=feature_area.index(max(feature_area))
-        where_clause = '"ID" = '+str(ID[index])
-        arcpy.Select_analysis(inshp, outshp, where_clause)
-        if isprint:
-            print ('GetMaxAreaFeature is finished....')
+        if len(feature_area)>0:
+            index=feature_area.index(max(feature_area))
+            where_clause = '"ID" = '+str(ID[index])
+            arcpy.Select_analysis(inshp, outshp, where_clause)
+            if isprint:
+                print ('GetMaxAreaFeature is finished....')
+        else:
+            if isprint:
+                print("No Filled Area is found......")
+            return "GetMaxAreaFeature:\n"+"No Filled Area is found......"
     except:
-        print(arcpy.GetMessages())
+        #print(arcpy.GetMessages())
+        return arcpy.GetMessages()
 
 def Fill(dem,fill,isprint):
     #Fill('E:/select/tr0_101x109/raster','E:/select/tr0_101x109/fill1')
@@ -184,7 +238,8 @@ def Fill(dem,fill,isprint):
         if isprint:
             print ('Fill is finished....')
     except:
-        print(arcpy.GetMessages())
+        #print(arcpy.GetMessages())
+        return "Fill:\n"+arcpy.GetMessages()
 
 def FlowDirection(dem,flowdir,isprint):
     #FlowDirection('E:/select/tr0_101x109/raster','E:/select/tr0_101x109/d1')
@@ -194,7 +249,8 @@ def FlowDirection(dem,flowdir,isprint):
         if isprint:
             print ('FlowDirection is finished....')
     except:
-        print(arcpy.GetMessages())
+        #print(arcpy.GetMessages())
+        return "FlowDirection:\n"+arcpy.GetMessages()
 
 def GetFilledArea(dem,fill,filledarea,isprint):
     #GetFilledArea('E:/select/tr0_101x109/raster','E:/select/tr0_101x109/fill','E:/select/tr0_101x109/a1')
@@ -207,7 +263,8 @@ def GetFilledArea(dem,fill,filledarea,isprint):
         if isprint:
             print ('GetFilledArea is finished....')
     except:
-        print(arcpy.GetMessages())
+        #print(arcpy.GetMessages())
+        return "GetFilledArea:\n"+arcpy.GetMessages()
 
 def Raster2Polygon(raster,plg,isprint):
     #Raster2Polygon('E:/select/tr0_101x109/area','E:/select/tr0_101x109/plg.shp')
@@ -216,7 +273,8 @@ def Raster2Polygon(raster,plg,isprint):
         if isprint:
             print ('Raster2Polygon is finished....')
     except:
-        print(arcpy.GetMessages())
+        #print(arcpy.GetMessages())
+        return "Raster2Polygon:\n"+arcpy.GetMessages()
 
 def Polygon2Raster(plg,cellsize,extent,raster,isprint):
     #Polygon2Raster('E:/select/tr0_101x109/ps.shp',499.542418,'E:/select/tr0_101x109/raster','E:/select/tr0_101x109/ps')
@@ -228,7 +286,8 @@ def Polygon2Raster(plg,cellsize,extent,raster,isprint):
         if isprint:
             print ('Polygon2Raster is finished....')
     except:
-        print(arcpy.GetMessages())
+        #print(arcpy.GetMessages())
+        return "Polygon2Raster:\n"+arcpy.GetMessages()
 
 def Watershed(flowdir,outlet,extent,watershed,isprint):
     #Watershed('E:/select/tr0_101x109/dir','E:/select/tr0_101x109/ps','E:/select/tr0_101x109/raster','E:/select/tr0_101x109/w')
@@ -240,4 +299,5 @@ def Watershed(flowdir,outlet,extent,watershed,isprint):
         if isprint:
             print ('Watershed is finished....')
     except:
-        print(arcpy.GetMessages())
+        #print(arcpy.GetMessages())
+        return "Watershed:\n"+arcpy.GetMessages()
