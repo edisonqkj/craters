@@ -5,7 +5,7 @@ import sys
 import datetime
 from multiprocessing import Pool
 from unitcomputation import *
-from splitdem import *
+#from splitdem import *
 
 ## Master Control Function
 ## Time: 11/4/14
@@ -22,15 +22,21 @@ def parallel(paras):
 	pool.join()
 
 def Execute(files,process_num):
-	#process_num=4
-	#print("slice_paras:")
-	slice_paras=map(lambda x:files[x:x+process_num],\
-		range(0,len(files),process_num))
-	#print(slice_paras[:3])
 ##############################################################
 	pool_costtime_start=datetime.datetime.now()
 
-	map(parallel,slice_paras)
+	if process_num==1:
+		# serial
+		map(ExtractRidge,files)
+	elif process_num>1:
+		# parallel
+		#print("slice_paras:")
+		slice_paras=map(lambda x:files[x:x+process_num],\
+			range(0,len(files),process_num))
+		#print(slice_paras[:3])
+		map(parallel,slice_paras)
+	else:
+		print("Process number must be positive......")
 
 	pool_costtime_end=datetime.datetime.now()
 ##############################################################
@@ -42,7 +48,7 @@ def Execute(files,process_num):
 		' seconds]')
 	f=open(rec_time,'a')
 	f.writelines('Extract Cost time: '+\
-		str((pool_costtime_end - pool_costtime_start).seconds)+' seconds')
+		str((pool_costtime_end - pool_costtime_start).seconds)+' seconds\n')
 	f.close()
 
 if __name__ == '__main__':

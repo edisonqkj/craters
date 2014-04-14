@@ -16,7 +16,7 @@ def ExtractRidge(ascii_path):
         print(ascii_path+" is not found......")
         return
     print(ascii_path+" is executed......")
-    isprint=True
+    isprint=True#False
     # full path of file
     if isprint:
         print("Dealing with %s" %ascii_path)
@@ -172,7 +172,8 @@ def ExtractRidge(ascii_path):
 def IsFailed(info,err_txt):
     if not info==None:
         f=open(err_txt,'a')
-        f.writelines(datetime.datetime.now())
+        f.writelines(str(datetime.datetime.now()))
+        #print(info)
         f.writelines(info+"\n\n")
         f.close()
         return True
