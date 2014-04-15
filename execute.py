@@ -102,5 +102,5 @@ if __name__ == '__main__':
 		files.append(data_dir+"south-west/"+str(ids_sw[i])+"/asc"+str(ids_sw[i])+".txt")
 
 	#files=["f:/north-east/0/asc0.txt"]
-	Execute(files,2)
+	Execute(files,1)
 	#os.system('shutdown -s -f -t 10')
