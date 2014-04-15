@@ -10,13 +10,15 @@ import arcpy
 
 def IsFailed(info,err_txt):
     if not info==None:
+        err_func=info.split(':')[0]
+        err_info=info.split(':')[1]
+        f=open(err_txt+"_"+err_func+".txt",'a')
         '''
-        f=open(err_txt,'a')
         f.writelines(unicode(str(datetime.datetime.now())))
         #print(info)
-        f.writelines(info)
+        f.writelines(info)'''
         f.close()
-        '''
+        
         return True
     return False
 
@@ -70,8 +72,8 @@ def GetMaxAreaFeature(inshp,outshp,isprint):
             return None
         else:
             if isprint:
-                print("No Filled Area is found......")
-            return unicode("GetMaxAreaFeature:\n"+"No Filled Area is found......\n\n")
+                print("GetNoArea:\nNo Filled Area is found......")
+            return unicode("GetNoArea:\n"+"No Filled Area is found......\n\n")
     except:
         #print(arcpy.GetMessages())
         return unicode("GetMaxAreaFeature:\n"+arcpy.GetMessages()+"\n\n")

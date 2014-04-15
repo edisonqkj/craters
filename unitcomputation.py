@@ -28,7 +28,7 @@ def ExtractRidge(ascii_path):
     #base+="/"
     name=filename.split('.')[0]
     fileformat=filename.split('.')[1]
-    err_txt='/'.join(base.split('/')[:-1])+"/error"+FID+".txt"
+    err_txt='/'.join(base.split('/')[:-1])+"/error"+FID#+".txt"
 ###########################################################
     # 0. Prepare Temporal & Crater Directory
     if isprint:
@@ -61,6 +61,7 @@ def ExtractRidge(ascii_path):
 ###########################################################
 
     arcpy.env.workspace = base #F:/north-east/0/
+
     # 1. Create DEM Raster
     dem=base+"/dem"+FID #tmp_dir+'dem'
     #rasterType = "INTEGER"
@@ -68,10 +69,12 @@ def ExtractRidge(ascii_path):
     #if isprint:
     #    print ('1 is finished......')
 
+    arcpy.env.extent=dem
+
     # 2. Fill DEM
     fill=tmp_dir+'fill'
     if IsFailed(Fill(dem,fill,isprint),err_txt):
-        print("Error: check out in "+err_txt)
+        print("Error: check out in "+err_txt+"_*.txt"+"_*.txt")
         return
     if isprint:
         print ('2 is finished......')
@@ -79,7 +82,8 @@ def ExtractRidge(ascii_path):
     # 3. Flow Direction
     fdir=tmp_dir+'fdir'
     ffdir=tmp_dir+'ffdir'
-    map(lambda x:IsFailed(x,err_txt) and print("Error: check out in "+err_txt),\
+    # bug: overide err_txt
+    map(lambda x:IsFailed(x,err_txt) and print("Error: check out in "+err_txt+"_*.txt"),\
         map(FlowDirection,[dem,fill],[fdir,ffdir],[isprint,isprint]))
     if isprint:
         print ('3 is finished......')
@@ -95,19 +99,19 @@ def ExtractRidge(ascii_path):
     cellsize=head_asc[4] #118.4505876499.542418
     
     if IsFailed(GetFilledArea(dem,fill,filledarea,isprint),err_txt):
-        print("Error: check out in "+err_txt)
+        print("Error: check out in "+err_txt+"_*.txt")
         return
     if IsFailed(Raster2Polygon(filledarea,plg,isprint),err_txt):
-        print("Error: check out in "+err_txt)
+        print("Error: check out in "+err_txt+"_*.txt")
         return
     if IsFailed(CalShpArea(plg,plg_area,isprint),err_txt):
-        print("Error: check out in "+err_txt)
+        print("Error: check out in "+err_txt+"_*.txt")
         return
     if IsFailed(GetMaxAreaFeature(plg_area,plg_area_mshp,isprint),err_txt):
-        print("Error: check out in "+err_txt)
+        print("Error: check out in "+err_txt+"_*.txt")
         return
     if IsFailed(Polygon2Raster(plg_area_mshp,cellsize,dem,plg_area_mrst,isprint),err_txt):
-        print("Error: check out in "+err_txt)
+        print("Error: check out in "+err_txt+"_*.txt")
         return
     if isprint:
         print ('4 is finished......')
@@ -115,7 +119,7 @@ def ExtractRidge(ascii_path):
     # 5. Initial Watershed
     iwatershed=tmp_dir+'iwatershed'
     if IsFailed(Watershed(fdir,plg_area_mrst,dem,iwatershed,isprint),err_txt):
-        print("Error: check out in "+err_txt)
+        print("Error: check out in "+err_txt+"_*.txt")
         return
     if isprint:
         print ('5 is finished......')
@@ -124,10 +128,10 @@ def ExtractRidge(ascii_path):
     ffdir_asc=tmp_dir+'ffdir.txt'
     iw_asc=tmp_dir+'iw.txt'
     if IsFailed(Raster2Ascii(ffdir,ffdir_asc,isprint),err_txt):
-        print("Error: check out in "+err_txt)
+        print("Error: check out in "+err_txt+"_*.txt")
         return
     if IsFailed(Raster2Ascii(iwatershed,iw_asc,isprint),err_txt):
-        print("Error: check out in "+err_txt)
+        print("Error: check out in "+err_txt+"_*.txt")
         return
     if isprint:
         print ('6 is finished......')
@@ -135,7 +139,7 @@ def ExtractRidge(ascii_path):
     # 7. Extract Outlets from Ascii
     outlet_asc=tmp_dir+'outlet.txt'
     if IsFailed(OutletAnalysis(iw_asc,ffdir_asc,outlet_asc,isprint),err_txt):
-        print("Error: check out in "+err_txt)
+        print("Error: check out in "+err_txt+"_*.txt")
         return
     if isprint:
         print ('7 is finished......')
@@ -144,7 +148,7 @@ def ExtractRidge(ascii_path):
     outlet=tmp_dir+'outlet'
     rasterType = "INTEGER"
     if IsFailed(Ascii2Raster(outlet_asc,rasterType,outlet,isprint),err_txt):
-        print("Error: check out in "+err_txt)
+        print("Error: check out in "+err_txt+"_*.txt")
         return
     if isprint:
         print ('8 is finished......')
@@ -154,13 +158,13 @@ def ExtractRidge(ascii_path):
     crater_plg=crater_dir+'p'+name+'.shp'
     crater_txt=crater_dir+'p'+name+'.txt'
     if IsFailed(Watershed(ffdir,outlet,dem,crater,isprint),err_txt):
-        print("Error: check out in "+err_txt)
+        print("Error: check out in "+err_txt+"_*.txt")
         return
     if IsFailed(Raster2Polygon(crater,crater_plg,isprint),err_txt):
-        print("Error: check out in "+err_txt)
+        print("Error: check out in "+err_txt+"_*.txt")
         return
     if IsFailed(Raster2Ascii(crater,crater_txt,isprint),err_txt):
-        print("Error: check out in "+err_txt)
+        print("Error: check out in "+err_txt+"_*.txt")
         return
 
     if isprint:
