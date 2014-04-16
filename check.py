@@ -1,10 +1,16 @@
 # -*- coding: cp936 -*-
-# Check unsplitted dem
-# Check dem without extraction
+## Check unsplitted dem & execute
+## Check dem without extraction & execute
+## Check extent not enough
+
+## Time: 16/4/14
+## Author: Edison Qian
+
 from __future__ import print_function
 import os
 import re
-#from splitdem import *
+from splitdem import *
+from execute import *
 from OutletAnalysis import *
 
 def IsSplitFailed(dir):
@@ -113,6 +119,7 @@ def Check(dir):
     # "f:/north-east/0/asc0.txt"
     # dir: "f:/north-east/"
     # return 3 lists--->split_ids,extract_ids,expand_ids
+    print(dir+": Checking is started......")
     if not os.path.exists(dir):
         # print(dir+' is not found......')
         return None#create dir
@@ -128,8 +135,9 @@ def Check(dir):
     f.close()
     # print(len(all_ids))
     # already existing ids
-    exist_ids=os.listdir(dir)
-    exist_ids.remove('ids.txt')
+    content=os.listdir(dir)
+    #exist_ids.remove('ids.txt')
+    exist_ids=filter(lambda x:not ".txt" in x,content)
     # print(type(exist_ids))
 
     # absent ids
@@ -137,8 +145,8 @@ def Check(dir):
 
     #########################################################
     # convert ids to paths
-    exist_paths=map(lambda x:dir+x+"/",exist_ids)
-    absent_paths=map(lambda x:dir+x+"/",absent_ids)
+    exist_paths=map(lambda x:dir+x+"/",exist_ids)#
+    absent_paths=map(lambda x:dir+x+"/",absent_ids)#
 
     # "f:/north-east/0/"
     # check Split failure dems
@@ -156,32 +164,81 @@ def Check(dir):
     # check Cover failure dems
     left_extract_paths=list(set(left_exist_paths).difference(set(need_reextract)))
     need_expand=filter(lambda x:IsCoverFailed(x),left_extract_paths)
+	
+    print(dir+": Checking is finished......")
     return Dir2Id(absent_paths),Dir2Id(need_reextract),Dir2Id(need_expand)
 
     #########################################################
 
 if __name__=='__main__':
-    save_dir="F:/"
+    envelope='E:/qkj/env_p30.shp'
+    dem="E:/qkj/Moon_LRO_LOLA_global_LDEM_118m_Feb2013.cub"
+
+    save_dir="e:/qkj/split/"
     north_east=save_dir+"north-east/"
     south_east=save_dir+"south-east/"
     north_west=save_dir+"north-west/"
     south_west=save_dir+"south-west/"
 
     ne,se,nw,sw=map(Check,[north_east,south_east,north_west,south_west])
-
+    print("Checking is finished......")
+    # north east
+    # print(type(ne[0]))
+    # print(type(ne[1]))
+    # print(ne[1].extend(ne[0]))
+    # print(ne[2])
     if ne is not None:
-        print(ne)
+        # print(ne)
+        # split
+        files_split=map(lambda x:[dem,envelope,north_east+str(x)+"/"],\
+                        ne[0])
+        map(split,files_split)
+        # extract
+        ne[1].extend(ne[0])
+        files_extract=map(lambda x:north_east+str(x)+"/asc"+str(x)+".txt",\
+                          ne[1])
+        map(Execute,files_extract)
     else:
         print(north_east+" is empty......")
+    # south east
     if se is not None:
-        print(se)
+        # print(se)
+        # split
+        files_split=map(lambda x:[dem,envelope,south_east+str(x)+"/"],\
+                        se[0])
+        map(split,files_split)
+        # extract
+        se[1].extend(se[0])
+        files_extract=map(lambda x:south_east+str(x)+"/asc"+str(x)+".txt",\
+                          se[1])
+        map(Execute,files_extract)
     else:
         print(south_east+" is empty......")
+    # north west
     if nw is not None:
-        print(nw)
+        # print(nw)
+        # split
+        files_split=map(lambda x:[dem,envelope,north_west+str(x)+"/"],\
+                        nw[0])
+        map(split,files_split)
+        # extract
+        nw[1].extend(nw[0])
+        files_extract=map(lambda x:north_west+str(x)+"/asc"+str(x)+".txt",\
+                          nw[1])
+        map(Execute,files_extract)
     else:
         print(north_west+" is empty......")
+    # south west
     if sw is not None:
-        print(sw)
+        # print(sw)
+        # split
+        files_split=map(lambda x:[dem,envelope,south_west+str(x)+"/"],\
+                        sw[0])
+        map(split,files_split)
+        # extract
+        sw[1].extend(sw[0])
+        files_extract=map(lambda x:south_west+str(x)+"/asc"+str(x)+".txt",\
+                          sw[1])
+        map(Execute,files_extract)
     else:
         print(south_west+" is empty......")

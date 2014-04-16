@@ -86,7 +86,8 @@ def start(paras_father):
     #print("Current: "+filedir)
 
     f=open(ids_txt)
-    paras_son=map(lambda x:[in_dem,in_envelope,filedir+"/"+str(int(x))+"/"],f.readlines()[0][1:-1].split(','))
+    paras_son=map(lambda x:[in_dem,in_envelope,filedir+"/"+str(int(x))+"/"],\
+                  f.readlines()[0][1:-1].split(','))
     f.close()
     print("Area Numbers: "+str(len(paras_son)))
 
@@ -116,8 +117,9 @@ def split(paras):
     ORIG_FID=target_dir.split('/')[-2]
     #print("target_dir: "+target_dir)
 
-    if not os.path.exists(target_dir):
-        os.mkdir(target_dir)
+    if os.path.exists(target_dir):
+        CleanDir(target_dir,False)
+    os.mkdir(target_dir)
     outshp=target_dir+"env"+ORIG_FID+".shp"
 
     env.workspace = target_dir
