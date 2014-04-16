@@ -1,4 +1,3 @@
-
 # -*- coding: cp936 -*-
 import os
 import sys
@@ -21,7 +20,7 @@ def parallel(paras):
 	pool.close()
 	pool.join()
 
-def Execute(files,process_num):
+def Execute(files,process_num=1):
 ##############################################################
 	pool_costtime_start=datetime.datetime.now()
 
@@ -62,7 +61,7 @@ if __name__ == '__main__':
 	ids_se=[]
 	ids_nw=[]
 	ids_sw=[]
-	data_dir="F:/"
+	data_dir="O:/"
 	if os.path.exists(data_dir+"north-east/ids.txt"):
 		f=open(data_dir+"north-east/ids.txt")
 		ids_ne=map(lambda x:int(x),f.readlines()[0][1:-1].split(','))

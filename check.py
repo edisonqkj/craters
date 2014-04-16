@@ -197,7 +197,7 @@ if __name__=='__main__':
         ne[1].extend(ne[0])
         files_extract=map(lambda x:north_east+str(x)+"/asc"+str(x)+".txt",\
                           ne[1])
-        map(Execute,files_extract)
+        Execute(files_extract)
     else:
         print(north_east+" is empty......")
     # south east
@@ -211,7 +211,7 @@ if __name__=='__main__':
         se[1].extend(se[0])
         files_extract=map(lambda x:south_east+str(x)+"/asc"+str(x)+".txt",\
                           se[1])
-        map(Execute,files_extract)
+        Execute(files_extract)
     else:
         print(south_east+" is empty......")
     # north west
@@ -225,7 +225,7 @@ if __name__=='__main__':
         nw[1].extend(nw[0])
         files_extract=map(lambda x:north_west+str(x)+"/asc"+str(x)+".txt",\
                           nw[1])
-        map(Execute,files_extract)
+        Execute(files_extract)
     else:
         print(north_west+" is empty......")
     # south west
@@ -239,6 +239,6 @@ if __name__=='__main__':
         sw[1].extend(sw[0])
         files_extract=map(lambda x:south_west+str(x)+"/asc"+str(x)+".txt",\
                           sw[1])
-        map(Execute,files_extract)
+        Execute(files_extract)
     else:
         print(south_west+" is empty......")
