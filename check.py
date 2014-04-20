@@ -111,6 +111,23 @@ def IsExpanded(data):
                         Down_Right_Corner)
     return len(res)>0
 
+def GetErrorTxtId(dir,err_func):
+    # Format:
+    # .../error+FID+"_"+err_func+".txt"
+    # err_func = GetNoArea
+    # .../north-east/error2_GetNoArea.txt
+    if not os.path.exists(dir):
+        print(dir+" is not found......")
+        return None
+    content=os.listdir(dir)
+    # err_func="GetNoArea"
+    # 'ids.txt'
+    errortxtfiles=filter(lambda x:"error" in x and \
+                                  ".txt" in x and \
+                                  err_func in x,\
+                                  content)
+    return map(lambda x:int(x.split('_')[0][5:]),errortxtfiles)
+
 def Dir2Id(dirlist):
     # "f:/north-east/0/"--- 0
     id_int=map(lambda x:int(x.split('/')[-2]),dirlist)
@@ -136,10 +153,11 @@ def Check(dir):
                 f.readlines()[0][1:-1].split(','))
     f.close()
     # print(len(all_ids))
+
     # already existing ids
     content=os.listdir(dir)
     #exist_ids.remove('ids.txt')
-    exist_ids=filter(lambda x:not ".txt" in x,content)
+    exist_ids=filter(lambda x:(not "error" in x) and (not ".txt" in x),content)
     # print(type(exist_ids))
 
     # absent ids
@@ -160,15 +178,19 @@ def Check(dir):
     # check Extraction failure dems
     left_exist_paths=list(set(exist_paths).difference(set(need_resplit)))
     need_reextract=filter(lambda x:IsExtractionFailed(x),left_exist_paths)
+    # remove no filled area ids
+    nofill_ids=GetErrorTxtId(dir,"GetNoArea")
+    need_reextract_ids=Dir2Id(need_reextract)
+    without_nofillids=list(set(need_reextract_ids).difference(set(nofill_ids)))
     if len(need_reextract)==len(left_exist_paths):
-        return Dir2Id(absent_paths),Dir2Id(need_reextract),[]
+        return Dir2Id(absent_paths),without_nofillids,[]
     
     # check Cover failure dems
     left_extract_paths=list(set(left_exist_paths).difference(set(need_reextract)))
     need_expand=filter(lambda x:IsCoverFailed(x),left_extract_paths)
 	
     print(dir+": Checking is finished......")
-    return Dir2Id(absent_paths),Dir2Id(need_reextract),Dir2Id(need_expand)
+    return Dir2Id(absent_paths),without_nofillids,Dir2Id(need_expand)
 
     #########################################################
 
