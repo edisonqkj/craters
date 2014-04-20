@@ -113,7 +113,9 @@ def IsExpanded(data):
 
 def Dir2Id(dirlist):
     # "f:/north-east/0/"--- 0
-    return map(lambda x:int(x.split('/')[-2]),dirlist)
+    id_int=map(lambda x:int(x.split('/')[-2]),dirlist)
+    id_int.sort()
+    return id_int
 
 def Check(dir):
     # "f:/north-east/0/asc0.txt"
@@ -121,11 +123,11 @@ def Check(dir):
     # return 3 lists--->split_ids,extract_ids,expand_ids
     print(dir+": Checking is started......")
     if not os.path.exists(dir):
-        # print(dir+' is not found......')
+        print(dir+' is not found......')
         return None#create dir
     ids_txt=dir+'ids.txt'
     if not os.path.exists(ids_txt):
-        # print(ids_txt+' is not found......')
+        print(ids_txt+' is not found......')
         return None
     #########################################################
     # all ids
@@ -189,56 +191,80 @@ if __name__=='__main__':
     # print(ne[2])
     if ne is not None:
         # print(ne)
+        print("North East:")
         # split
-        files_split=map(lambda x:[dem,envelope,north_east+str(x)+"/"],\
-                        ne[0])
-        map(split,files_split)
-        # extract
-        ne[1].extend(ne[0])
-        files_extract=map(lambda x:north_east+str(x)+"/asc"+str(x)+".txt",\
-                          ne[1])
-        Execute(files_extract)
+        if ne[0] is not None:
+            print("split number: "+str(len(ne[0])))
+            files_split=map(lambda x:[dem,envelope,north_east+str(x)+"/"],\
+                            ne[0])
+            map(split,files_split)
+        if ne[1] is not None:
+            # extract
+            ne[1].extend(ne[0])
+            print("extract number: "+str(len(ne[1])))
+            files_extract=map(lambda x:north_east+str(x)+"/asc"+str(x)+".txt",\
+                              ne[1])
+            Execute(files_extract)
+        print("OK......")
     else:
         print(north_east+" is empty......")
     # south east
     if se is not None:
         # print(se)
-        # split
-        files_split=map(lambda x:[dem,envelope,south_east+str(x)+"/"],\
-                        se[0])
-        map(split,files_split)
-        # extract
-        se[1].extend(se[0])
-        files_extract=map(lambda x:south_east+str(x)+"/asc"+str(x)+".txt",\
-                          se[1])
-        Execute(files_extract)
+        print("South East:")
+        if se[0] is not None:
+            # split
+            print("split number: "+str(len(se[0])))
+            files_split=map(lambda x:[dem,envelope,south_east+str(x)+"/"],\
+                            se[0])
+            map(split,files_split)
+        if se[1] is not None:
+            # extract
+            se[1].extend(se[0])
+            print("extract number: "+str(len(se[1])))
+            files_extract=map(lambda x:south_east+str(x)+"/asc"+str(x)+".txt",\
+                              se[1])
+            Execute(files_extract)
+        print("OK......")
     else:
         print(south_east+" is empty......")
     # north west
     if nw is not None:
         # print(nw)
-        # split
-        files_split=map(lambda x:[dem,envelope,north_west+str(x)+"/"],\
-                        nw[0])
-        map(split,files_split)
-        # extract
-        nw[1].extend(nw[0])
-        files_extract=map(lambda x:north_west+str(x)+"/asc"+str(x)+".txt",\
-                          nw[1])
-        Execute(files_extract)
+        print("North West:")
+        if nw[0] is not None:
+            # split
+            print("split number: "+str(len(nw[0])))
+            files_split=map(lambda x:[dem,envelope,north_west+str(x)+"/"],\
+                            nw[0])
+            map(split,files_split)
+        if nw[1] is not None:
+            # extract
+            nw[1].extend(nw[0])
+            print("extract number: "+str(len(nw[1])))
+            files_extract=map(lambda x:north_west+str(x)+"/asc"+str(x)+".txt",\
+                              nw[1])
+            Execute(files_extract)
+        print("OK......")
     else:
         print(north_west+" is empty......")
     # south west
     if sw is not None:
         # print(sw)
-        # split
-        files_split=map(lambda x:[dem,envelope,south_west+str(x)+"/"],\
-                        sw[0])
-        map(split,files_split)
-        # extract
-        sw[1].extend(sw[0])
-        files_extract=map(lambda x:south_west+str(x)+"/asc"+str(x)+".txt",\
-                          sw[1])
-        Execute(files_extract)
+        print("South West:")
+        if sw[0] is not None:
+            # split
+            print("split number: "+str(len(sw[0])))
+            files_split=map(lambda x:[dem,envelope,south_west+str(x)+"/"],\
+                            sw[0])
+            map(split,files_split)
+        if sw[1] is not None:
+            # extract
+            sw[1].extend(sw[0])
+            print("extract number: "+str(len(sw[1])))
+            files_extract=map(lambda x:south_west+str(x)+"/asc"+str(x)+".txt",\
+                              sw[1])
+            Execute(files_extract)
+        print("OK......")
     else:
         print(south_west+" is empty......")
