@@ -195,10 +195,11 @@ def Check(dir):
     #########################################################
 
 if __name__=='__main__':
-    envelope='E:/qkj/env_p30.shp'
-    dem="E:/qkj/Moon_LRO_LOLA_global_LDEM_118m_Feb2013.cub"
+    center='E:/R/Moon/LOLA/GoranSalamuniccar_MoonCraters/LU78287GT_GIS/LU78287GT_Moon2000.shp'
+    # envelope='E:/qkj/env_p30.shp'
+    dem="E:/R/Moon/LOLA/Moon_LRO_LOLA_global_LDEM_118m_Feb2013.cub"
 
-    save_dir="e:/qkj/split/"
+    save_dir="f:/"
     north_east=save_dir+"north-east/"
     south_east=save_dir+"south-east/"
     north_west=save_dir+"north-west/"
@@ -211,13 +212,14 @@ if __name__=='__main__':
     # print(type(ne[1]))
     # print(ne[1].extend(ne[0]))
     # print(ne[2])
+    ratio=1.3
     if ne is not None:
         # print(ne)
         print("North East:")
         # split
         if ne[0] is not None:
             print("split number: "+str(len(ne[0])))
-            files_split=map(lambda x:[dem,envelope,north_east+str(x)+"/"],\
+            files_split=map(lambda x:[dem,center,north_east+str(x)+"/",ratio],\
                             ne[0])
             map(split,files_split)
         if ne[1] is not None:
@@ -237,7 +239,7 @@ if __name__=='__main__':
         if se[0] is not None:
             # split
             print("split number: "+str(len(se[0])))
-            files_split=map(lambda x:[dem,envelope,south_east+str(x)+"/"],\
+            files_split=map(lambda x:[dem,center,south_east+str(x)+"/",ratio],\
                             se[0])
             map(split,files_split)
         if se[1] is not None:
@@ -257,7 +259,7 @@ if __name__=='__main__':
         if nw[0] is not None:
             # split
             print("split number: "+str(len(nw[0])))
-            files_split=map(lambda x:[dem,envelope,north_west+str(x)+"/"],\
+            files_split=map(lambda x:[dem,center,north_west+str(x)+"/",ratio],\
                             nw[0])
             map(split,files_split)
         if nw[1] is not None:
@@ -277,7 +279,7 @@ if __name__=='__main__':
         if sw[0] is not None:
             # split
             print("split number: "+str(len(sw[0])))
-            files_split=map(lambda x:[dem,envelope,south_west+str(x)+"/"],\
+            files_split=map(lambda x:[dem,center,south_west+str(x)+"/",ratio],\
                             sw[0])
             map(split,files_split)
         if sw[1] is not None:

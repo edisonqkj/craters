@@ -155,3 +155,76 @@ def Watershed(flowdir,outlet,extent,watershed,isprint):
     except:
         #print(arcpy.GetMessages())
         return unicode("Watershed:\n"+arcpy.GetMessages()+"\n\n")
+
+def Select(in_shp,out_shp,where_clause,isprint):
+    try:
+        # base,filename=os.path.split(out_shp)
+        # arcpy.env.workspace = base+'/'
+        arcpy.env.extent=in_shp
+        # where_clause = '"ORIG_FID" = '+FID
+        arcpy.Select_analysis(in_shp, out_shp, where_clause)
+        if isprint:
+            print ('Select is finished....')
+        return None
+    except:
+        #print(arcpy.GetMessages())
+        return unicode("Select:\n"+arcpy.GetMessages()+"\n\n")
+
+def Buffer(in_shp,out_shp,ratio,isprint):
+    try:
+        records=arcpy.SearchCursor(in_shp,"","","","")
+        #"100 Feet"
+        # only one record in in_shp
+        for record in records:
+            distance = float(record.Radius_deg)*ratio
+        # print(distance)
+        sideType = "FULL"
+        endType = "ROUND"
+        dissolveType = "NONE"
+        arcpy.Buffer_analysis(in_shp,out_shp,unicode(str(distance)+" Degree"),\
+                              sideType,endType,dissolveType)
+        if isprint:
+            print ('Buffer is finished....')
+        return None
+    except:
+        #print(arcpy.GetMessages())
+        return unicode("Buffer:\n"+arcpy.GetMessages()+"\n\n")
+
+def Envelope(in_shp,out_shp,geotype,isprint):
+    # Geometry type:
+    # RECTANGLE_BY_AREA
+    # RECTANGLE_BY_WIDTH
+    # CONVEX_HULL
+    # CIRCLE
+    # ENVELOPE
+    try:
+        arcpy.MinimumBoundingGeometry_management(\
+            in_shp,out_shp,geotype, "NONE")
+        if isprint:
+            print ('Envelope is finished....')
+        return None
+    except:
+        #print(arcpy.GetMessages())
+        return unicode("Envelope:\n"+arcpy.GetMessages()+"\n\n")
+
+def ExtractDemByMask(in_shp,in_dem,out_dem,isprint):
+    # error: no dem is extracted
+    try:
+        # print(in_shp)
+        # print(in_dem)
+        # print(out_dem)
+        arcpy.env.extent=in_shp
+        arcpy.env.snapRaster=in_dem
+        # Check out the ArcGIS Spatial Analyst extension license
+        arcpy.CheckOutExtension("Spatial")
+
+        # Execute ExtractByMask
+        outExtractByMask = ExtractByMask(in_dem,in_shp)
+        # Save the output 
+        outExtractByMask.save(out_dem)
+        if isprint:
+            print ('ExtractDemByMask is finished....')
+        return None
+    except:
+        #print(arcpy.GetMessages())
+        return unicode("ExtractDemByMask:\n"+arcpy.GetMessages()+"\n\n")

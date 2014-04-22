@@ -7,6 +7,7 @@ import string
 import sys
 from multiprocessing import Pool
 from test_clearfile import *
+from funcs import *
 
 import arcpy
 from arcpy import env
@@ -15,7 +16,7 @@ from arcpy.sa import *
 #print 'level: '+sys.args[1]
 
 #level=sys.args[1]
-def region(workspace,in_envelope):
+def region(workspace,center):
     ## index envelops into four regions
     ## based on the craters' (x,y)
     folder_ne=workspace+"north-east/"
@@ -38,7 +39,7 @@ def region(workspace,in_envelope):
     print("Directories are ready......")
 
     env.workspace = workspace
-    records=arcpy.SearchCursor(in_envelope,"","","","")
+    records=arcpy.SearchCursor(center,"","","","")
 
     id_ne=[]
     id_nw=[]
@@ -52,14 +53,14 @@ def region(workspace,in_envelope):
         lat=float(record.Lat)
         if lon>0:
             if lat>0:
-                id_ne.append(record.ORIG_FID)
+                id_ne.append(record.FID)
             elif lat<0:
-                id_se.append(record.ORIG_FID)
+                id_se.append(record.FID)
         elif lon<0:
             if lat>0:
-                id_nw.append(record.ORIG_FID)
+                id_nw.append(record.FID)
             elif lat<0:
-                id_sw.append(record.ORIG_FID)
+                id_sw.append(record.FID)
     ids_path=[folder_ne+'ids.txt',\
               folder_se+'ids.txt',\
               folder_nw+'ids.txt',\
@@ -76,8 +77,9 @@ def start(paras_father):
     print("paras_father")
     print(paras_father)
     in_dem=paras_father[0]
-    in_envelope=paras_father[1]
+    in_center=paras_father[1]
     ids_txt=paras_father[2]
+    ratio=paras_father[3]
 
     filedir,filename=os.path.split(ids_txt)# .../north-east
     name=filename.split('.')[0]# ids
@@ -86,7 +88,8 @@ def start(paras_father):
     #print("Current: "+filedir)
 
     f=open(ids_txt)
-    paras_son=map(lambda x:[in_dem,in_envelope,filedir+"/"+str(int(x))+"/"],\
+    paras_son=map(lambda x:\
+                  [in_dem,in_center,filedir+"/"+str(int(x))+"/",ratio],\
                   f.readlines()[0][1:-1].split(','))
     f.close()
     print("Area Numbers: "+str(len(paras_son)))
@@ -112,43 +115,56 @@ def parallel(paras):
 
 def split(paras):
     in_dem=paras[0]
-    in_envelope=paras[1]
+    in_center=paras[1]
     target_dir=paras[2]
-    ORIG_FID=target_dir.split('/')[-2]
+    ratio=paras[3]
+    FID=target_dir.split('/')[-2]
     #print("target_dir: "+target_dir)
 
     if os.path.exists(target_dir):
         CleanDir(target_dir,False)
     os.mkdir(target_dir)
-    outshp=target_dir+"env"+ORIG_FID+".shp"
+    # keep current ratio
+    f=open(target_dir+'ratio_'+str(ratio)+'.txt','w')
+    f.close()
+    # print("Directory is ready......")
 
-    env.workspace = target_dir
-    arcpy.env.extent=in_envelope
-    where_clause = '"ORIG_FID" = '+ORIG_FID
-    arcpy.Select_analysis(in_envelope, outshp, where_clause)
+    arcpy.env.workspace = target_dir
+    # 1. split center
+    out_center=target_dir+"center"+FID+".shp"
+    where_clause = '"FID" = '+FID
+    Select(in_center,out_center,where_clause,False)
+    
+    # 2. create buffer with ratio
+    # ./buf0_p30.shp
+    out_buf=target_dir+"buf"+FID+".shp"
+    Buffer(out_center,out_buf,ratio,False)
 
-    '''
-    2. extract DEM in the envelope
-    '''
-    out_dem=target_dir+"dem"+ORIG_FID
+    # 3. create envelope
+    # ./env0_p30.shp
+    out_env=target_dir+"env"+FID+".shp"
+    geotype='ENVELOPE'
+    Envelope(out_buf,out_env,geotype,False)
+
+    # 4. extract DEM in the envelope
+    out_dem=target_dir+"dem"+FID
+    # ExtractDemByMask(out_env,in_dem,out_dem,False)
     try:
-        arcpy.env.extent=outshp
+        arcpy.env.extent=out_env
         arcpy.env.snapRaster=in_dem
         # Check out the ArcGIS Spatial Analyst extension license
         arcpy.CheckOutExtension("Spatial")
 
         # Execute ExtractByMask
-        outExtractByMask = ExtractByMask(in_dem, outshp)
+        outExtractByMask = ExtractByMask(in_dem, out_env)
         # Save the output 
         outExtractByMask.save(out_dem)
 
-        '''
-        3. convert DEM to Ascii
-        '''
-        out_asc=target_dir+"asc"+ORIG_FID+".txt"
+        # 5. convert DEM to Ascii
+        out_asc=target_dir+"asc"+FID+".txt"
         Raster2Ascii(out_dem,out_asc,False)
 
-        print("Finished Area: "+ORIG_FID+"......")
+        print("Finished Area: "+FID+"......")
     except:
         print(arcpy.GetMessages())
 
@@ -169,11 +185,14 @@ if __name__=='__main__':
     ############################### body ##################################
     ## 1. index envelops into four regions
     save_dir="F:/"
-    envelope='E:/tmp/env1.shp'
-    ids_path=region(save_dir,envelope)
+    # envelope='E:/tmp/env1.shp'
+    center='E:/R/Moon/LOLA/GoranSalamuniccar_MoonCraters/LU78287GT_GIS/LU78287GT_Moon2000.shp'
+    ratio=1.3
+    ids_path=region(save_dir,center)
 
+    ## 2. split dem with envelope
     dem="E:/R/Moon/LOLA/Moon_LRO_LOLA_global_LDEM_118m_Feb2013.cub"
-    paras=map(lambda x:[dem,envelope,x],ids_path)
+    paras=map(lambda x:[dem,center,x,ratio],ids_path)
     #print(paras)
     map(start,paras)
     ################################ end ##################################
