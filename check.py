@@ -128,6 +128,16 @@ def GetErrorTxtId(dir,err_func):
                                   content)
     return map(lambda x:int(x.split('_')[0][5:]),errortxtfiles)
 
+def ReadEdgeShpId(txt):
+    f=open(txt)
+    content=f.readlines()
+    f.close()
+    records=content[1:]
+    edge_ORIGFID=map(lambda record:\
+                     int(record.split(',')[-1]),records)
+    # print(len(edge_ORIGFID))
+    return edge_ORIGFID
+
 def Dir2Id(dirlist):
     # "f:/north-east/0/"--- 0
     id_int=map(lambda x:int(x.split('/')[-2]),dirlist)
@@ -195,11 +205,12 @@ def Check(dir):
     #########################################################
 
 if __name__=='__main__':
-    center='E:/R/Moon/LOLA/GoranSalamuniccar_MoonCraters/LU78287GT_GIS/LU78287GT_Moon2000.shp'
+    center='e:/qkj/GoranSalamuniccar_MoonCraters/LU78287GT_GIS/LU78287GT_Moon2000.shp'
     # envelope='E:/qkj/env_p30.shp'
-    dem="E:/R/Moon/LOLA/Moon_LRO_LOLA_global_LDEM_118m_Feb2013.cub"
+    dem="E:/qkj/Moon_LRO_LOLA_global_LDEM_118m_Feb2013.cub"
+    edgeshp='E:/qkj/edge.txt'
 
-    save_dir="f:/"
+    save_dir="d:/qkj/"
     north_east=save_dir+"north-east/"
     south_east=save_dir+"south-east/"
     north_west=save_dir+"north-west/"
@@ -212,9 +223,15 @@ if __name__=='__main__':
     # print(type(ne[1]))
     # print(ne[1].extend(ne[0]))
     # print(ne[2])
+
+    # Here, we eliminate craters on the edge
+    # Further, with re-projection of dem, they should be considered.
+    edgeShpId=ReadEdgeShpId(edgeshp)
+
     ratio=1.3
     if ne is not None:
         # print(ne)
+        ne=map(lambda x:list(set(x)-set(edgeShpId)),ne)
         print("North East:")
         # split
         if ne[0] is not None:
@@ -235,6 +252,7 @@ if __name__=='__main__':
     # south east
     if se is not None:
         # print(se)
+        se=map(lambda x:list(set(x)-set(edgeShpId)),se)
         print("South East:")
         if se[0] is not None:
             # split
@@ -255,6 +273,7 @@ if __name__=='__main__':
     # north west
     if nw is not None:
         # print(nw)
+        nw=map(lambda x:list(set(x)-set(edgeShpId)),nw)
         print("North West:")
         if nw[0] is not None:
             # split
@@ -275,6 +294,7 @@ if __name__=='__main__':
     # south west
     if sw is not None:
         # print(sw)
+        sw=map(lambda x:list(set(x)-set(edgeShpId)),sw)
         print("South West:")
         if sw[0] is not None:
             # split
