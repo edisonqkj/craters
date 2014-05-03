@@ -196,11 +196,12 @@ def Check(dir):
         return Dir2Id(absent_paths),without_nofillids,[]
     
     # check Cover failure dems
+    '''
     left_extract_paths=list(set(left_exist_paths).difference(set(need_reextract)))
     need_expand=filter(lambda x:IsCoverFailed(x),left_extract_paths)
-	
+	'''
     print(dir+": Checking is finished......")
-    return Dir2Id(absent_paths),without_nofillids,Dir2Id(need_expand)
+    return Dir2Id(absent_paths),without_nofillids,[]#Dir2Id(need_expand)
 
     #########################################################
 
@@ -238,14 +239,14 @@ if __name__=='__main__':
             print("split number: "+str(len(ne[0])))
             files_split=map(lambda x:[dem,center,north_east+str(x)+"/",ratio],\
                             ne[0])
-            map(split,files_split)
+            len(files_split)>0 and map(split,files_split)
         if ne[1] is not None:
             # extract
             ne[1].extend(ne[0])
             print("extract number: "+str(len(ne[1])))
             files_extract=map(lambda x:north_east+str(x)+"/asc"+str(x)+".txt",\
                               ne[1])
-            Execute(files_extract)
+            len(files_extract)>0 and Execute(files_extract)
         print("OK......")
     else:
         print(north_east+" is empty......")
@@ -259,14 +260,14 @@ if __name__=='__main__':
             print("split number: "+str(len(se[0])))
             files_split=map(lambda x:[dem,center,south_east+str(x)+"/",ratio],\
                             se[0])
-            map(split,files_split)
+            len(files_split)>0 and map(split,files_split)
         if se[1] is not None:
             # extract
             se[1].extend(se[0])
             print("extract number: "+str(len(se[1])))
             files_extract=map(lambda x:south_east+str(x)+"/asc"+str(x)+".txt",\
                               se[1])
-            Execute(files_extract)
+            len(files_extract)>0 and Execute(files_extract)
         print("OK......")
     else:
         print(south_east+" is empty......")
@@ -280,14 +281,14 @@ if __name__=='__main__':
             print("split number: "+str(len(nw[0])))
             files_split=map(lambda x:[dem,center,north_west+str(x)+"/",ratio],\
                             nw[0])
-            map(split,files_split)
+            len(files_split)>0 and map(split,files_split)
         if nw[1] is not None:
             # extract
             nw[1].extend(nw[0])
             print("extract number: "+str(len(nw[1])))
             files_extract=map(lambda x:north_west+str(x)+"/asc"+str(x)+".txt",\
                               nw[1])
-            Execute(files_extract)
+            len(files_extract)>0 and Execute(files_extract)
         print("OK......")
     else:
         print(north_west+" is empty......")
@@ -301,14 +302,14 @@ if __name__=='__main__':
             print("split number: "+str(len(sw[0])))
             files_split=map(lambda x:[dem,center,south_west+str(x)+"/",ratio],\
                             sw[0])
-            map(split,files_split)
+            len(files_split)>0 and map(split,files_split)
         if sw[1] is not None:
             # extract
             sw[1].extend(sw[0])
             print("extract number: "+str(len(sw[1])))
             files_extract=map(lambda x:south_west+str(x)+"/asc"+str(x)+".txt",\
                               sw[1])
-            Execute(files_extract)
+            len(files_extract)>0 and Execute(files_extract)
         print("OK......")
     else:
         print(south_west+" is empty......")
