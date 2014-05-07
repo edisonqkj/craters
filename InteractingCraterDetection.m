@@ -22,7 +22,7 @@ function varargout = InteractingCraterDetection(varargin)
 
 % Edit the above text to modify the response to help InteractingCraterDetection
 
-% Last Modified by GUIDE v2.5 26-Feb-2014 13:37:45
+% Last Modified by GUIDE v2.5 07-May-2014 09:03:15
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -80,6 +80,7 @@ function btn_input_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 global dem_head
 global dem
+global dem_img
 t1=clock;
 [filename,pathname]=uigetfile(...\
     {'*.txt','txt-files(*.txt)';'*.*','All-files(*.*)'},'Open:','');
@@ -115,8 +116,10 @@ else
     cur_data = get(handles.table_statistics,'data');
     [data_row,data_col] = size(cur_data);
     if data_row>0
-        cur_data(1,:)=[];
-        set(handles.table_statistics, 'data', cur_data);
+        for i=1:data_row
+            cur_data(1,:)=[];
+            set(handles.table_statistics, 'data', cur_data);
+        end
     end
 end
 % 'Time cost:'
@@ -186,7 +189,7 @@ if numel(dem_head)>0
     end
     aspect=dem(start_y:end_y,start_x:end_x);
 %     AspectAnalysis(aspect,rec_id);
-    scalewin(aspect);
+    scalewin(aspect,rec_id);
 end
 
 % --- Executes on button press in btn_exit.
@@ -315,4 +318,25 @@ if numel(dem_head)>0
     end
 else
     msgbox('Please input DEM!');
+end
+
+
+% --- Executes on button press in btn_clear.
+function btn_clear_Callback(hObject, eventdata, handles)
+% hObject    handle to btn_clear (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global dem_img
+% original dem image
+axes(handles.axes_Image);
+imshow(dem_img);
+
+% clear table
+cur_data = get(handles.table_statistics,'data');
+[data_row,data_col] = size(cur_data);
+if data_row>0
+    for i=1:data_row
+        cur_data(1,:)=[];
+        set(handles.table_statistics, 'data', cur_data);
+    end
 end

@@ -1,6 +1,6 @@
-function []=scalewin(aspect)
+function []=scalewin(aspect,areaID)
 clc;
-[row,col]=size(aspect)
+[row,col]=size(aspect);
 if row>col
     num_scale=[1:2:fix(col/2)-1];
 else
@@ -11,7 +11,8 @@ for i=1:length(num_scale)
                 fix(col/2)-num_scale(i):fix(col/2)+num_scale(i));
     [hist,ma(i),mr(i)]=AspectAnalysis(data,i);
 end
-figure,
+% figure,
+figure('NumberTitle', 'off', 'Name', ['AspectAnalysis:[' num2str(areaID) ']']);
 subplot(2,1,1),plot(num_scale,ma);
 title('mean aspect');
 subplot(2,1,2),plot(num_scale,mr);
