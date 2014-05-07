@@ -22,7 +22,7 @@ function varargout = InteractingCraterDetection(varargin)
 
 % Edit the above text to modify the response to help InteractingCraterDetection
 
-% Last Modified by GUIDE v2.5 07-May-2014 09:03:15
+% Last Modified by GUIDE v2.5 07-May-2014 10:02:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -171,25 +171,27 @@ if numel(dem_head)>0
     text(select_xy(1,1)+10,select_xy(1,2)+10,['ID = ' num2str(rec_id)],'EdgeColor','white');
     
     % aspect analysis
-    start_x=select_xy(1,1);
-    start_y=select_xy(1,2);
-    end_x=select_xy(2,1);
-    end_y=select_xy(2,2);
-    if start_x==0
-        start_x=1;
+    if get(handles.chk_aspectanalysis,'Value')==1;
+        start_x=select_xy(1,1);
+        start_y=select_xy(1,2);
+        end_x=select_xy(2,1);
+        end_y=select_xy(2,2);
+        if start_x==0
+            start_x=1;
+        end
+        if start_y==0
+            start_y=1;
+        end
+        if end_x>dem_head(1)
+            end_x=dem_head(1);
+        end
+        if end_y>dem_head(2)
+            end_y=dem_head(2);
+        end
+        aspect=dem(start_y:end_y,start_x:end_x);
+        %     AspectAnalysis(aspect,rec_id);
+        scalewin(aspect,rec_id);
     end
-    if start_y==0
-        start_y=1;
-    end
-    if end_x>dem_head(1)
-        end_x=dem_head(1);
-    end
-    if end_y>dem_head(2)
-        end_y=dem_head(2);
-    end
-    aspect=dem(start_y:end_y,start_x:end_x);
-%     AspectAnalysis(aspect,rec_id);
-    scalewin(aspect,rec_id);
 end
 
 % --- Executes on button press in btn_exit.
@@ -342,3 +344,5 @@ if numel(dem_img)>0
         end
     end
 end
+
+
