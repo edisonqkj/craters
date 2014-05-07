@@ -327,16 +327,18 @@ function btn_clear_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global dem_img
-% original dem image
-axes(handles.axes_Image);
-imshow(dem_img);
-
-% clear table
-cur_data = get(handles.table_statistics,'data');
-[data_row,data_col] = size(cur_data);
-if data_row>0
-    for i=1:data_row
-        cur_data(1,:)=[];
-        set(handles.table_statistics, 'data', cur_data);
+if numel(dem_img)>0
+    % original dem image
+    axes(handles.axes_Image);
+    imshow(dem_img);
+    
+    % clear table
+    cur_data = get(handles.table_statistics,'data');
+    [data_row,data_col] = size(cur_data);
+    if data_row>0
+        for i=1:data_row
+            cur_data(1,:)=[];
+            set(handles.table_statistics, 'data', cur_data);
+        end
     end
 end
