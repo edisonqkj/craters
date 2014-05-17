@@ -69,16 +69,16 @@ def IsCoverFailed(dir):
 def ContractMatrix(ori_data,std_data,nodata):
     # contract matrix without nodata value
     # return contracted matrix with respect to std_data
-    cols=len(data_std[0])
-    rows=len(data_std)
+    cols=len(std_data[0])
+    rows=len(std_data)
     # in each row
     res_row=map(lambda r:\
                 len(filter(lambda c:c==nodata,r)),\
-                data_std)
+                std_data)
     # in each col
     res_col=map(lambda i:\
                 len(filter(lambda x:x==nodata,\
-                           map(lambda r:r[i],data_std))),\
+                           map(lambda r:r[i],std_data))),\
                 range(cols))
     row_index=[i for i,j in enumerate(res_row) if j!=cols]
     col_index=[i for i,j in enumerate(res_col) if j!=rows]
