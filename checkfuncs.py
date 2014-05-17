@@ -294,7 +294,7 @@ def ExpandCheck(dir):
         # 'ratio_'+str(ratio)+'.txt'
         reextraction_ids=\
         filter(lambda x:\
-               not os.path.exists(dir+x+'/ratio_2.0.txt'),\
+               not os.path.exists(dir+x+'/ratio_4.0.txt'),\
                record_ids)
         # if last process is stopped by sudden power off,
         # exp_path should be updated.
@@ -311,7 +311,7 @@ def ReExtractionByRatio(paras):
     dem=paras[0]
     center=paras[1]
     target=paras[2]
-    ratio_max=para[3]
+    ratio_max=paras[3]
     FID=target.split('/')[-2]
 
     ratios=map(lambda x:1.3+0.1*x,\
