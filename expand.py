@@ -35,6 +35,11 @@ if __name__=='__main__':
         if len(files_extract)>0:
             ne_res=filter(lambda x:len(x)>0,map(ReExtractionByRatio,files_extract))
             print('Expansion Failed: '+len(ne_res))
+            # write into txt
+            exp_path=north_east+'exp_ids.txt'
+            f=open(exp_path,'w')
+            f.writelines(str(Dir2Id(ne_res)))
+            f.close()
         print("OK......")
     else:
         print(north_east+" is empty......")
@@ -45,6 +50,11 @@ if __name__=='__main__':
         if len(files_extract)>0:
             se_res=filter(lambda x:len(x)>0,map(ReExtractionByRatio,files_extract))
             print('Expansion Failed: '+len(se_res))
+            # write into txt
+            exp_path=south_east+'exp_ids.txt'
+            f=open(exp_path,'w')
+            f.writelines(str(Dir2Id(se_res)))
+            f.close()
         print("OK......")
     else:
         print(south_east+" is empty......")
@@ -55,16 +65,26 @@ if __name__=='__main__':
         if len(files_extract)>0:
             nw_res=filter(lambda x:len(x)>0,map(ReExtractionByRatio,files_extract))
             print('Expansion Failed: '+len(nw_res))
+            # write into txt
+            exp_path=north_west+'exp_ids.txt'
+            f=open(exp_path,'w')
+            f.writelines(str(Dir2Id(nw_res)))
+            f.close()
         print("OK......")
     else:
         print(north_west+" is empty......")
         
     if sw is not None:
         print("South West:")
-        files_extract=map(lambda x:[dem,center,north_east+x+'/'],sw)
+        files_extract=map(lambda x:[dem,center,south_west+x+'/'],sw)
         if len(files_extract)>0:
             sw_res=filter(lambda x:len(x)>0,map(ReExtractionByRatio,files_extract))
             print('Expansion Failed: '+len(sw_res))
+            # write into txt
+            exp_path=south_west+'exp_ids.txt'
+            f=open(exp_path,'w')
+            f.writelines(str(Dir2Id(sw_res)))
+            f.close()
         print("OK......")
     else:
         print(south_west+" is empty......")

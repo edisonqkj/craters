@@ -57,8 +57,44 @@ def IsCoverFailed(dir):
     if not os.path.exists(txt):
         return True
 
+    # eliminate NoData rows & columns
+    # ffdir: "F:/north-east/0/tasc0/ffdir.txt"
+    txt_std=dir+"tasc"+FID+"/ffdir.txt"
+    head_std,data_std=ReadAscii(txt_std)
+    nodata=0#head_std[5]
     head,data=ReadAscii(txt)
-    return IsExpanded(data)
+
+    return IsExpanded(ContractMatrix(data,data_std,nodata))
+
+def ContractMatrix(ori_data,std_data,nodata):
+    # contract matrix without nodata value
+    # return contracted matrix with respect to std_data
+    cols=len(data_std[0])
+    rows=len(data_std)
+    # in each row
+    res_row=map(lambda r:\
+                len(filter(lambda c:c==nodata,r)),\
+                data_std)
+    # in each col
+    res_col=map(lambda i:\
+                len(filter(lambda x:x==nodata,\
+                           map(lambda r:r[i],data_std))),\
+                range(cols))
+    row_index=[i for i,j in enumerate(res_row) if j!=cols]
+    col_index=[i for i,j in enumerate(res_col) if j!=rows]
+    # example:
+    # res_row=[5,5,5,0,0,0,0,5]
+    # row_index=[3,4,5,6]
+    # row_up=3
+    # row_down=6
+    row_up= min(row_index)
+    row_down=max(row_index)
+    col_left= min(col_index)
+    col_right=max(col_index)
+
+    res_data=map(lambda x:x[col_left:col_right+1],\
+                 ori_data[row_up:row_down+1])
+    return res_data
 
 def IsExpanded(data):
     # data is binary: 0, 1
@@ -217,23 +253,52 @@ def ClearFakeErrorFiles(dir):
     # need dictionary structure {'id':file}
     map(lambda x:'error'+str(x)+'_',\
         fake_error_ids)
+    print(dir+": Clearing is finished......")
     return list(set(all_error_ids).difference(set(fake_error_ids)))
 
 def ExpandCheck(dir):
     # dir: "f:/north-east/"
-    # return 1 list--->expand_ids
+    # return 1 list--->expand_ids (str)
     print(dir+": Checking is started......")
     if not os.path.exists(dir):
         print(dir+' is not found......')
         return None#create dir
 
-    exact_error_ids=map(lambda x:str(x),ClearFakeErrorFiles(dir))
-    # subdirectories
-    content=os.listdir(dir)
-    subdirs=filter(lambda x:(not "error" in x) and (not ".txt" in x),content)
-    check_ids=list(set(subdirs).difference(set(exact_error_ids)))
-    # filter out ids for reextraction
-    reextraction_ids=filter(lambda x:IsCoverFailed(dir+x+'/'),check_ids)
+    exp_path=dir+'exp_ids.txt'
+    if not os.path.exists(exp_path):
+        # first to expand process
+        exact_error_ids=map(lambda x:str(x),ClearFakeErrorFiles(dir))
+        
+        # subdirectories
+        content=os.listdir(dir)
+        subdirs=filter(lambda x:(not "error" in x) and (not ".txt" in x),content)
+        check_ids=list(set(subdirs).difference(set(exact_error_ids)))
+        
+        # filter out ids for reextraction
+        print('Cover checking is stated......')
+        reextraction_ids=filter(lambda x:IsCoverFailed(dir+x+'/'),check_ids)
+        
+        # write into txt
+        f=open(exp_path,'w')
+        f.writelines(str(reextraction_ids))
+        f.close()
+    else:
+        # continue last process
+        f=open(exp_path)
+        record_ids=map(lambda x:str(int(x)),\
+                       f.readlines()[0][1:-1].split(','))
+        f.close()
+        # 'ratio_'+str(ratio)+'.txt'
+        reextraction_ids=\
+        filter(lambda x:\
+               not os.path.exists(dir+x+'/ratio_2.0.txt'),\
+               record_ids)
+        # if last process is stopped by sudden power off,
+        # exp_path should be updated.
+        # write into txt
+        f=open(exp_path,'w')
+        f.writelines(str(reextraction_ids))
+        f.close()
 
     print(dir+": Checking is finished......")
     return reextraction_ids
@@ -252,7 +317,7 @@ def ReExtractionByRatio(paras):
         split([dem,center,target,ratio])
         # reextract
         if not IsSplitFailed(target):
-            ExtractRidge(target+'/asc'+str(FID)+".txt")
+            ExtractRidge(target+'asc'+str(FID)+".txt")
             if not IsExtractionFailed(target):
                 if not IsCoverFailed(target):
                     return ''
