@@ -31,7 +31,7 @@ if __name__=='__main__':
     # expand ratio for reextraction
     if ne is not None:
         print("North East:")
-        files_extract=map(lambda x:[dem,center,north_east+x+'/'],ne)
+        files_extract=map(lambda x:[dem,center,north_east+x+'/',4],ne)
         if len(files_extract)>0:
             ne_res=filter(lambda x:len(x)>0,map(ReExtractionByRatio,files_extract))
             print('Expansion Failed: '+len(ne_res))
@@ -46,7 +46,7 @@ if __name__=='__main__':
 
     if se is not None:
         print("South East:")
-        files_extract=map(lambda x:[dem,center,south_east+x+'/'],se)
+        files_extract=map(lambda x:[dem,center,south_east+x+'/',4],se)
         if len(files_extract)>0:
             se_res=filter(lambda x:len(x)>0,map(ReExtractionByRatio,files_extract))
             print('Expansion Failed: '+len(se_res))
@@ -61,7 +61,7 @@ if __name__=='__main__':
 
     if nw is not None:
         print("North West:")
-        files_extract=map(lambda x:[dem,center,north_west+x+'/'],nw)
+        files_extract=map(lambda x:[dem,center,north_west+x+'/',4],nw)
         if len(files_extract)>0:
             nw_res=filter(lambda x:len(x)>0,map(ReExtractionByRatio,files_extract))
             print('Expansion Failed: '+len(nw_res))
@@ -76,7 +76,7 @@ if __name__=='__main__':
         
     if sw is not None:
         print("South West:")
-        files_extract=map(lambda x:[dem,center,south_west+x+'/'],sw)
+        files_extract=map(lambda x:[dem,center,south_west+x+'/',4],sw)
         if len(files_extract)>0:
             sw_res=filter(lambda x:len(x)>0,map(ReExtractionByRatio,files_extract))
             print('Expansion Failed: '+len(sw_res))

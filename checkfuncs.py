@@ -177,6 +177,9 @@ def Dir2Id(dirlist):
     id_int.sort()
     return id_int
 
+def Str2Int(data):
+    return map(lambda x: int(x),data)
+
 def Check(dir):
     # "f:/north-east/0/asc0.txt"
     # dir: "f:/north-east/"
@@ -280,7 +283,7 @@ def ExpandCheck(dir):
         
         # write into txt
         f=open(exp_path,'w')
-        f.writelines(str(reextraction_ids))
+        f.writelines(str(Str2Int(reextraction_ids)))
         f.close()
     else:
         # continue last process
@@ -297,7 +300,7 @@ def ExpandCheck(dir):
         # exp_path should be updated.
         # write into txt
         f=open(exp_path,'w')
-        f.writelines(str(reextraction_ids))
+        f.writelines(str(Str2Int(reextraction_ids)))
         f.close()
 
     print(dir+": Checking is finished......")
@@ -308,9 +311,11 @@ def ReExtractionByRatio(paras):
     dem=paras[0]
     center=paras[1]
     target=paras[2]
+    ratio_max=para[3]
     FID=target.split('/')[-2]
 
-    ratios=map(lambda x:1.3+0.1*x,range(1,8))
+    ratios=map(lambda x:1.3+0.1*x,\
+               range(1,(ratio_max-1.3)/0.1+1))
     
     for ratio in ratios:
         # resplit dem with new ratio
