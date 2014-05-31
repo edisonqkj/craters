@@ -295,10 +295,17 @@ def ExpandCheck(dir):
         record_ids=map(lambda x:str(int(x)),\
                        f.readlines()[0][1:-1].split(','))
         f.close()
-        # 'ratio_'+str(ratio)+'.txt'
+        # if needed, ratio_max should be given as a parameter.
+        # here, 4.0 is set as ratio_max.
+        # 'ratio_'+str(ratio_max)+'.txt'
+        # ratio_4.0 -- too large region for reextraction, pass it
+        # last reextracted craters shouldn't be processed any more
+        # example:
+        # ratio_3.2 & not coverfailed -- succeed in last process, pass it
         reextraction_ids=\
         filter(lambda x:\
-               not os.path.exists(dir+x+'/ratio_4.0.txt'),\
+               (not os.path.exists(dir+x+'/ratio_4.0.txt')) \
+               and IsCoverFailed(dir+x+'/'),\
                record_ids)
         # if last process is stopped by sudden power off,
         # exp_path should be updated.
@@ -311,7 +318,7 @@ def ExpandCheck(dir):
     return reextraction_ids
 
 def ReExtractionByRatio(paras):
-    # dem,center,f:/north-east/0/
+    # dem,center,f:/north-east/0/,ratio_max
     dem=paras[0]
     center=paras[1]
     target=paras[2]
@@ -330,4 +337,4 @@ def ReExtractionByRatio(paras):
             if not IsExtractionFailed(target):
                 if not IsCoverFailed(target):
                     return ''
-    return target#ratio=2
+    return target#ratio=ratio_max
