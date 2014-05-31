@@ -60,6 +60,10 @@ def IsCoverFailed(dir):
     # eliminate NoData rows & columns
     # ffdir: "F:/north-east/0/tasc0/ffdir.txt"
     txt_std=dir+"tasc"+FID+"/ffdir.txt"
+    # too large area is removed for later individual execution
+    # std data is not existing
+    if not os.path.exists(txt_std):
+        return False
     head_std,data_std=ReadAscii(txt_std)
     nodata=0#head_std[5]
     head,data=ReadAscii(txt)
