@@ -53,6 +53,7 @@ if __name__=='__main__':
             print("extract number: "+str(len(ne[1])))
             files_extract=map(lambda x:north_east+str(x)+"/asc"+str(x)+".txt",\
                               ne[1])
+            files_extract=filter(lambda x:not IsOutofExtent(x),files_extract)
             len(files_extract)>0 and Execute(files_extract)
         print("OK......")
     else:
@@ -74,6 +75,7 @@ if __name__=='__main__':
             print("extract number: "+str(len(se[1])))
             files_extract=map(lambda x:south_east+str(x)+"/asc"+str(x)+".txt",\
                               se[1])
+            files_extract=filter(lambda x:not IsOutofExtent(x),files_extract)
             len(files_extract)>0 and Execute(files_extract)
         print("OK......")
     else:
@@ -95,6 +97,7 @@ if __name__=='__main__':
             print("extract number: "+str(len(nw[1])))
             files_extract=map(lambda x:north_west+str(x)+"/asc"+str(x)+".txt",\
                               nw[1])
+            files_extract=filter(lambda x:not IsOutofExtent(x),files_extract)
             len(files_extract)>0 and Execute(files_extract)
         print("OK......")
     else:
@@ -116,6 +119,7 @@ if __name__=='__main__':
             print("extract number: "+str(len(sw[1])))
             files_extract=map(lambda x:south_west+str(x)+"/asc"+str(x)+".txt",\
                               sw[1])
+            files_extract=filter(lambda x:not IsOutofExtent(x),files_extract)
             len(files_extract)>0 and Execute(files_extract)
         print("OK......")
     else:
