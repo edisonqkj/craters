@@ -333,8 +333,22 @@ def ReExtractionByRatio(paras):
         split([dem,center,target,ratio])
         # reextract
         if not IsSplitFailed(target):
-            ExtractRidge(target+'asc'+str(FID)+".txt")
+            ascii_path=target+'asc'+str(FID)+".txt"
+            (not IsOutofExtent(ascii_path)) \
+            and ExtractRidge(ascii_path)
+            # if outofextent, extraction is failed
+            # cause extraction isn't processed
             if not IsExtractionFailed(target):
                 if not IsCoverFailed(target):
                     return ''
     return target#ratio=ratio_max
+
+def IsOutofExtent(ascii_path):
+    # with ratio increasing, the region is out of extent
+    # which happens at borders under projection coordinate
+    # check the size of ascii file, break if size > 100M
+    if not os.path.exists(ascii_path):
+        print(ascii_path+' is not found......')
+        return False
+    file_size=1.0*os.path.getsize(ascii_path)/1024**2# Megabyte
+    return file_size>100
