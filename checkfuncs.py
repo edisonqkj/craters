@@ -178,7 +178,7 @@ def ReadEdgeShpId(txt):
 def Dir2Id(dirlist):
     # "f:/north-east/0/"--- 0
     id_int=map(lambda x:int(x.split('/')[-2]),dirlist)
-    id_int.sort()
+    # id_int.sort()
     return id_int
 
 def Str2Int(data):
