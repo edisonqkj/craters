@@ -23,6 +23,7 @@ def MergeShp(sources,target):
     # arcpy.env.workspace = 
     try:
         arcpy.Merge_management(sources, target)
+        print(target+" is Merged......")
     except:
         print("MergeShp:\n"+arcpy.GetMessages()+"\n\n")
         return unicode("MergeShp:\n"+arcpy.GetMessages()+"\n\n")
