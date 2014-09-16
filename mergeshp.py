@@ -11,6 +11,8 @@ import os
 import arcpy
 from check import *
 from test_clearfile import *
+from checkfuncs import *
+from ProjectIdentifyProcess import *
 
 def GetAllIds(ids_txt):
     f=open(ids_txt)
@@ -28,8 +30,25 @@ def MergeShp(sources,target):
         print("MergeShp:\n"+arcpy.GetMessages()+"\n\n")
         return unicode("MergeShp:\n"+arcpy.GetMessages()+"\n\n")
 
+def SearchCondition(dir):
+    # dir='f:/north-east/0/'
+    base,name=os.path.split(dir)
+    id_str=os.path.basename(base)# 0
+
+    # ratio_x.txt
+    ratio_file=filter(lambda file: \
+                        ('ratio' in file), \
+                    os.listdir(dir))
+    if len(ratio_file)==0:
+        # Condition I: ratio_x.txt doesnt exist
+        return (not IsExtractionFailed(dir)) and (not IsCoverFailed(dir))
+    else:
+        ratio_less_than_4=filter(lambda r:not '4.0' in r,ratio_file)
+        # Condition II: ratio_x.txt, x<4.0 && size< 100M
+        return len(ratio_less_than_4)>1 and (not IsOutofExtent(dir+'asc'+id_str+'.txt'))
+
 if __name__=='__main__':
-    save_dir='f:/'
+    save_dir="f:/"
     expect_dir=[save_dir+"north-east/",\
                 save_dir+"south-east/",\
                 save_dir+"north-west/",\
@@ -55,11 +74,13 @@ if __name__=='__main__':
                 ),\
             work_dir)
     # check successful extraction & covering
+    print("Checking is started......")
     valid_paths=\
         map(lambda subdir:\
             filter(lambda folder:\
-                   not IsExtractionFailed(folder) and \
-                   not IsCoverFailed(folder),\
+                SearchCondition(folder),\
+                   # not IsExtractionFailed(folder) and \
+                   # not IsCoverFailed(folder),\
                    subdir),\
             exist_paths)
     # "f:/north-east/0/"--- 0
@@ -75,10 +96,19 @@ if __name__=='__main__':
         sys.exit()
 
     ##############################################################
+    # Project && Identify Process
+    print("Process is started......")
+    map(lambda subdir:\
+            map(lambda folder:\
+                ProjectIdentifyProcess(folder),\
+                subdir),\
+        valid_paths)
+    print("Process is finished......")
+    ##############################################################
     sources=\
         map(lambda subdir,ids:\
             map(lambda cdir,cid:\
-                cdir+"casc"+str(cid)+"/pasc"+str(cid)+".shp",\
+                cdir+"casc"+str(cid)+"/ipasc"+str(cid)+".shp",\
                 subdir,ids),\
             valid_paths,valid_ids)
 
