@@ -24,6 +24,7 @@ Created on 2014-9-6
 import arcpy
 import os
 import re
+from test_clearfile import *
 
 def define_projection(target_shp_path, source_path):
     dem = arcpy.Raster(source_path)
@@ -55,6 +56,13 @@ def ProjectIdentifyProcess(folder_path):
     # 'E:/tmp/7451/'
     base,name=os.path.split(folder_path)# 'E:/tmp/7451'
     id = os.path.basename(base)# '7451'
+    # PIP_dir=folder_path+'/PIP/'
+    # if os.psth.exists(PIP_dir):
+    #     CleanDir(PIP_dir,False)
+    # os.mkdir(PIP_dir)
+    if os.path.exists(folder_path+"casc"+id+"/ipasc"+id+".shp"):
+        print(id+': identify is already done......')
+        return
     pasc_shp_path = folder_path+"casc"+id+"/pasc"+id+".shp"
     dem_path = 'F:/Data/moon/Moon_LRO_LOLA_global_LDEM_118m_Feb2013.cub'#os.path.join(folder_path,"dem%d" % id)
     env_shp_path = folder_path+"env"+id+".shp"

@@ -60,8 +60,14 @@ if __name__=='__main__':
 
     print("Current Directories:")
     print(work_dir)
-
+    # "f:/north-east/" --> 'ne'
+    work_dir_short=map(lambda dir:\
+                        dir.split('/')[-2].split('-')[0][0]+\
+                        dir.split('/')[-2].split('-')[1][0],\
+                        work_dir)
+    # print(work_dir_short)
     ##############################################################
+    # Check Process
     # existing sub-directories of each work_dir
     # get "f:/north-east/0/"
     exist_paths=\
@@ -105,6 +111,7 @@ if __name__=='__main__':
         valid_paths)
     print("Process is finished......")
     ##############################################################
+    # Merge Process
     sources=\
         map(lambda subdir,ids:\
             map(lambda cdir,cid:\
@@ -118,8 +125,13 @@ if __name__=='__main__':
     os.mkdir(save_merge)
     print("Directories are ready......")
 
-    target=[save_merge+"merge_ne.shp",save_merge+"merge_se.shp",\
-            save_merge+"merge_nw.shp",save_merge+"merge_sw.shp"]
-    ##############################################################
+    # work_dir_short:['ne']
+    target=map(lambda dir:\
+                save_merge+'merge_'+dir+'.shp',\
+                work_dir_short)
+    # print(target)
+    # target=[save_merge+"merge_ne.shp",save_merge+"merge_se.shp",\
+    #         save_merge+"merge_nw.shp",save_merge+"merge_sw.shp"]
     map(MergeShp,sources,target)
     print("Merge is finished......")
+    ##############################################################
