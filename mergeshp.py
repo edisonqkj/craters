@@ -13,6 +13,14 @@ from check import *
 from test_clearfile import *
 from checkfuncs import *
 from ProjectIdentifyProcess import *
+from sound import *
+
+def Write2Txt(file,value):
+    if os.path.exists(file):
+        os.remove(file)
+    f=open(file,'w')
+    f.writelines(value)
+    f.close()
 
 def GetAllIds(ids_txt):
     f=open(ids_txt)
@@ -91,6 +99,9 @@ if __name__=='__main__':
             exist_paths)
     # "f:/north-east/0/"--- 0
     valid_ids=map(lambda subdir:Dir2Id(subdir),valid_paths)
+    # write valid ids into txt
+    map(lambda subdir,ids:Write2Txt(subdir+'valid_ids.txt',str(ids)),\
+                            work_dir,valid_ids)
 
     print("Checking is finished......")
     # Sum of craters in four regions
@@ -115,7 +126,7 @@ if __name__=='__main__':
     sources=\
         map(lambda subdir,ids:\
             map(lambda cdir,cid:\
-                cdir+"casc"+str(cid)+"/ipasc"+str(cid)+".shp",\
+                cdir+"casc"+str(cid)+"/idpasc"+str(cid)+".shp",\
                 subdir,ids),\
             valid_paths,valid_ids)
 
@@ -129,9 +140,11 @@ if __name__=='__main__':
     target=map(lambda dir:\
                 save_merge+'merge_'+dir+'.shp',\
                 work_dir_short)
-    # print(target)
+    print(sources)
     # target=[save_merge+"merge_ne.shp",save_merge+"merge_se.shp",\
     #         save_merge+"merge_nw.shp",save_merge+"merge_sw.shp"]
     map(MergeShp,sources,target)
     print("Merge is finished......")
+    musci_file='c:/SleepAway.wav'
+    play(musci_file)
     ##############################################################
