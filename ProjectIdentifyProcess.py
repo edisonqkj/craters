@@ -19,12 +19,69 @@ Created on 2014-9-6
     ....env#.shp
 
 @function:
-    
+    ....ProjectIdentifyProcess (original)
+    ....define_projection
+    ....identify_attribution
+    ....get_minimun_bounding_circle
+
+@co-author: Edison Qian
+@description:
+    reorganize the ProjectIdentifyProcess function,
+    and code the left functions except 3 function by
+    Wang.
 '''
 import arcpy
 import os
 import re
+from check import *
 from test_clearfile import *
+from checkfuncs import *
+
+def Write2Txt(file,value):
+    if os.path.exists(file):
+        os.remove(file)
+    f=open(file,'w')
+    f.writelines(value)
+    f.close()
+
+def GetAllIds(ids_txt):
+    f=open(ids_txt)
+    all_ids=map(lambda x:str(int(x)),\
+                f.readlines()[0][1:-1].split(','))
+    f.close()
+    # print(len(all_ids))
+
+def GetAllIdsByEval(ids_txt):
+    f=open(ids_txt)
+    str=f.readlines()[0]
+    f.close()
+    return eval(str)
+
+def MergeShp(sources,target):
+    # arcpy.env.workspace = 
+    try:
+        arcpy.Merge_management(sources, target)
+        print(target+" is Merged......")
+    except:
+        print("MergeShp:\n"+arcpy.GetMessages()+"\n\n")
+        return unicode("MergeShp:\n"+arcpy.GetMessages()+"\n\n")
+
+def SearchCondition(dir):
+    # dir='f:/north-east/0/'
+    base,name=os.path.split(dir)
+    id_str=os.path.basename(base)# 0
+
+    # ratio_x.txt
+    ratio_file=filter(lambda file: \
+                        ('ratio' in file), \
+                    os.listdir(dir))
+    if len(ratio_file)==0:
+        # Condition I: ratio_x.txt doesnt exist
+        return (not IsExtractionFailed(dir)) and (not IsCoverFailed(dir))
+    else:
+        ratio_less_than_4=filter(lambda r:not '4.0' in r,ratio_file)
+        # Condition II: ratio_x.txt, x<4.0 && size< 100M
+        return len(ratio_less_than_4)>1 and (not IsOutofExtent(dir+'asc'+id_str+'.txt'))
 
 def define_projection(target_shp_path, source_path):
     dem = arcpy.Raster(source_path)
@@ -147,8 +204,10 @@ def ProjectIdentifyProcess(folder_path):
 
 if __name__ == '__main__':
     folder_path = 'E:/tmp/7451/'#raw_input("enter the folder path:")
-    ProjectIdentifyProcess(folder_path)
+    # ProjectIdentifyProcess(folder_path)
     # CalcShpField('F:/north-west/11/casc11/idpasc11.shp','ID',2)
     # SetField('F:/south-east/4/casc4/ipasc4.shp')
+    # DeleteField('e:/tmp/nw-se/merge_nw.shp')
+    GetAllIdsByEval('F:/south-east/valid_ids.txt')
     
 

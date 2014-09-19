@@ -8,52 +8,8 @@
 
 from __future__ import print_function
 import os
-import arcpy
-from check import *
-from test_clearfile import *
-from checkfuncs import *
 from ProjectIdentifyProcess import *
 from sound import *
-
-def Write2Txt(file,value):
-    if os.path.exists(file):
-        os.remove(file)
-    f=open(file,'w')
-    f.writelines(value)
-    f.close()
-
-def GetAllIds(ids_txt):
-    f=open(ids_txt)
-    all_ids=map(lambda x:str(int(x)),\
-                f.readlines()[0][1:-1].split(','))
-    f.close()
-    # print(len(all_ids))
-
-def MergeShp(sources,target):
-    # arcpy.env.workspace = 
-    try:
-        arcpy.Merge_management(sources, target)
-        print(target+" is Merged......")
-    except:
-        print("MergeShp:\n"+arcpy.GetMessages()+"\n\n")
-        return unicode("MergeShp:\n"+arcpy.GetMessages()+"\n\n")
-
-def SearchCondition(dir):
-    # dir='f:/north-east/0/'
-    base,name=os.path.split(dir)
-    id_str=os.path.basename(base)# 0
-
-    # ratio_x.txt
-    ratio_file=filter(lambda file: \
-                        ('ratio' in file), \
-                    os.listdir(dir))
-    if len(ratio_file)==0:
-        # Condition I: ratio_x.txt doesnt exist
-        return (not IsExtractionFailed(dir)) and (not IsCoverFailed(dir))
-    else:
-        ratio_less_than_4=filter(lambda r:not '4.0' in r,ratio_file)
-        # Condition II: ratio_x.txt, x<4.0 && size< 100M
-        return len(ratio_less_than_4)>1 and (not IsOutofExtent(dir+'asc'+id_str+'.txt'))
 
 if __name__=='__main__':
     save_dir="f:/"
@@ -129,6 +85,11 @@ if __name__=='__main__':
                 cdir+"casc"+str(cid)+"/idpasc"+str(cid)+".shp",\
                 subdir,ids),\
             valid_paths,valid_ids)
+    # check existing idpascx.shp after ProjectIdentifyProcess
+    # missing shp not recorded in valid_paths
+    sources=map(lambda subdir:\
+                     filter(lambda path:\
+                              os.path.exists(path),subdir),sources)
 
     save_merge=save_dir+"merge/"
     if os.path.exists(save_merge):
@@ -140,11 +101,12 @@ if __name__=='__main__':
     target=map(lambda dir:\
                 save_merge+'merge_'+dir+'.shp',\
                 work_dir_short)
-    print(sources)
+    # print(sources)
     # target=[save_merge+"merge_ne.shp",save_merge+"merge_se.shp",\
     #         save_merge+"merge_nw.shp",save_merge+"merge_sw.shp"]
-    map(MergeShp,sources,target)
+    # map(MergeShp,sources,target)
     print("Merge is finished......")
+    print("Please inform ******** Qian Ke Jian ******** Thanks! :D")
     musci_file='c:/SleepAway.wav'
     play(musci_file)
     ##############################################################
