@@ -122,13 +122,13 @@ def DeleteField(shp_path):
 def CalcShpField(shp_path,field,value):
     # calculate field
     if field=='Name':
-        value="str(\'"+value+"\')"
+        value="str(\""+value+"\")"# double quote regards quote as a character
     arcpy.CalculateField_management(shp_path, field, value, "PYTHON")
     # print(value)
 
 def SetField(shp_path):
     # set the field value of fragments
-    try:
+    # try:
         # get field names
         fields=arcpy.ListFields(shp_path)
         aliasName=map(lambda an:''+an.aliasName,fields)
@@ -136,7 +136,7 @@ def SetField(shp_path):
         aliasName.remove('Shape')
         aliasName.remove('ID')
         aliasName.remove('GRIDCODE')
-        # print(len(aliasName))
+        # print(aliasName)
         # one record -> return
         feature_count=int(arcpy.GetCount_management(shp_path).getOutput(0))
         # print(feature_count)
@@ -153,9 +153,9 @@ def SetField(shp_path):
         map(lambda f,v:CalcShpField(shp_path,f,v),\
                                 aliasName,field_value)
         return aliasName# dissolveFields
-    except:
-        print(arcpy.GetMessages())
-        return []
+    # except:
+    #     print(arcpy.GetMessages())
+    #     return []
 
 def DissolveShp(shp_path,out_path,dissolveFields):
     # projection difference causes fragments in ipasc
@@ -203,11 +203,11 @@ def ProjectIdentifyProcess(folder_path):
     # get_minimun_bounding_circle(pasc_shp_path)
 
 if __name__ == '__main__':
-    folder_path = 'E:/tmp/7451/'#raw_input("enter the folder path:")
-    # ProjectIdentifyProcess(folder_path)
+    folder_path = 'E:/tmp/76149/'#raw_input("enter the folder path:")
+    ProjectIdentifyProcess(folder_path)
     # CalcShpField('F:/north-west/11/casc11/idpasc11.shp','ID',2)
     # SetField('F:/south-east/4/casc4/ipasc4.shp')
     # DeleteField('e:/tmp/nw-se/merge_nw.shp')
-    GetAllIdsByEval('F:/south-east/valid_ids.txt')
+    # GetAllIdsByEval('F:/south-east/valid_ids.txt')
     
 
