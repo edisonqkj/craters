@@ -186,7 +186,7 @@ def ProjectIdentifyProcess(folder_path):
     if not os.path.exists(ipasc_path):
         # print(id+': identify is already done......')
         # return
-        pasc_shp_path = ipasc_path
+        pasc_shp_path = folder_path+"casc"+id+"/pasc"+id+".shp"
         dem_path = 'F:/Data/moon/Moon_LRO_LOLA_global_LDEM_118m_Feb2013.cub'#os.path.join(folder_path,"dem%d" % id)
         env_shp_path = folder_path+"env"+id+".shp"
     
