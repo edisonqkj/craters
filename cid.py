@@ -19,7 +19,7 @@ def MergeByTxt(dir,out_path):
     sources=map(lambda id:\
                     dir+str(id)+'/casc'+str(id)+'/idpasc'+str(id)+'.shp',\
                     ids)
-    sources=filter(lambda file:not os.path.exists(file),sources)
+    sources=filter(lambda file:os.path.exists(file),sources)
     # print(sources)
     MergeShp(sources,out_path)
     print('')
