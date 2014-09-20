@@ -8,6 +8,7 @@
 
 import os
 from ProjectIdentifyProcess import *
+from sound import *
 
 def MergeByTxt(dir,out_path):
     # valid_ids.txt exists
